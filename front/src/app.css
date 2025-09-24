@@ -1,0 +1,94 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@plugin "daisyui" {
+  themes:
+    light,
+    dark --prefersdark --default;
+}
+
+@plugin "daisyui/theme" {
+  name: "dark";
+  default: true; /* set as default */
+  prefersdark: true; /* set as default dark mode (prefers-color-scheme:dark) */
+  color-scheme: dark; /* color of browser-provided UI */
+
+  --color-base-100: oklch(0.2096 0.0275 290.36);
+  --color-base-200: oklch(0.1896 0.0242 287.67);
+  --color-base-300: oklch(0.1674 0.0229 292.08);
+  --color-base-content: oklch(0.841 0.0056 297.71);
+
+  --color-primary: oklch(0.5454 0.2756 292.04);
+  --color-primary-content: oklch(0.9074 0.049167 293.0386);
+
+  --color-secondary: oklch(0.5103 0.2756 292.04);
+  --color-secondary-content: oklch(0.9074 0.049167 293.0386);
+
+  --color-accent: oklch(0.6241 0.1575 277.95);
+  --color-accent-content: oklch(0.1248 0.031 280.93);
+
+  --color-neutral: oklch(0.2813 0.0153 269.13);
+  --color-neutral-content: oklch(0.8574 0.003 264.54);
+
+  --radius-selector: 1rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "light";
+  default: false; /* set as default */
+  prefersdark: false; /* set as default dark mode (prefers-color-scheme:dark) */
+  color-scheme: light; /* color of browser-provided UI */
+
+  --color-primary: oklch(0.5454 0.2756 292.04);
+  --color-primary-content: oklch(0.9074 0.049167 293.0386);
+
+  --color-secondary: oklch(0.5103 0.2756 292.04);
+  --color-secondary-content: oklch(0.9074 0.049167 293.0386);
+
+  --color-accent: oklch(0.6241 0.1575 277.95);
+  --color-accent-content: oklch(0.1248 0.031 280.93);
+
+  --radius-selector: 1rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+main {
+  @apply mx-auto w-full px-6;
+}
+
+.h1 {
+  @apply scroll-m-20 text-4xl sm:text-5xl font-extrabold tracking-tight lg:text-5xl;
+}
+
+.h2 {
+  @apply scroll-m-20 text-3xl sm:text-4xl font-semibold tracking-tight transition-colors;
+}
+
+.h3 {
+  @apply scroll-m-20 text-2xl font-semibold tracking-tight transition-colors;
+}
+
+.h4 {
+  @apply scroll-m-20 text-xl font-semibold tracking-tight transition-colors;
+}
+
+.h5 {
+  @apply scroll-m-20 text-lg font-semibold tracking-tight transition-colors;
+}
+
+.h6 {
+  @apply scroll-m-20 text-base font-semibold tracking-tight transition-colors;
+}
