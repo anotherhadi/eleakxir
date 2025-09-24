@@ -29,6 +29,8 @@ func main() {
 		"infoParquet",
 		// Csv
 		"csvToParquet",
+		// JSON
+		"jsonToParquet",
 		// Misc
 		"mergeFiles",
 		"deleteFirstLines",
@@ -107,6 +109,26 @@ func main() {
 		err := misc.CsvToParquet(lu, *inputFile, *outputFile, *strict)
 		if err != nil {
 			log.Fatal("Failed to transform Csv file", "error", err)
+		}
+		return
+	case "jsonToParquet":
+		var inputFile *string = flag.StringP("input", "i", "", "Input Parquet file")
+		var outputFile *string = flag.StringP("output", "o", "", "Output Parquet file")
+		var compression *string = flag.StringP("compression", "c", "ZSTD", "Compression codec (UNCOMPRESSED, SNAPPY, GZIP, BROTLI, LZ4, ZSTD)")
+		var noColors *bool = flag.Bool("no-colors", false, "Remove all colors")
+		var debug *bool = flag.Bool("debug", false, "Debug mode")
+		flag.Parse()
+		if *inputFile == "" || *outputFile == "" {
+			log.Fatal("Input and output files are required")
+		}
+		if *noColors {
+			settings.DisableColors()
+		}
+		lu.Compression = *compression
+		lu.Debug = *debug
+		err := misc.JsonToParquet(lu, *inputFile, *outputFile)
+		if err != nil {
+			log.Fatal("Failed to transform JSON file", "error", err)
 		}
 		return
 	case "mergeFiles":
