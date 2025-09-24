@@ -2,3 +2,8 @@
   base = "front"
   publish = "dist"
   command = "bun run build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
