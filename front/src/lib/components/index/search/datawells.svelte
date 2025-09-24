@@ -90,7 +90,7 @@
           {/each}
         {:else}
           <tr class="hover:bg-base-300">
-            <td colspan="2" class="text-center leading-9"
+            <td colspan={3} class="text-center leading-9"
               ><span class="text-3xl">(·.·)</span><br />No data wells found</td
             >
           </tr>
