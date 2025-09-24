@@ -11,7 +11,7 @@ import (
 	"github.com/anotherhadi/eleakxir/leak-utils/parquet"
 	"github.com/anotherhadi/eleakxir/leak-utils/settings"
 	"github.com/charmbracelet/log"
-	_ "github.com/marcboeker/go-duckdb"
+	_ "github.com/marcboeker/go-duckdb/v2"
 	flag "github.com/spf13/pflag"
 )
 

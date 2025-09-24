@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/anotherhadi/eleakxir/leak-utils/settings"
@@ -13,7 +14,9 @@ import (
 )
 
 func CsvToParquet(lu settings.LeakUtils, inputFile string, outputFile string, strict bool) error {
-	hasHeader, err := csvHasHeader(inputFile)
+	delimiter := getDelimiter(inputFile)
+
+	hasHeader, err := csvHasHeader(inputFile, delimiter)
 	if err != nil {
 		return err
 	}
@@ -25,8 +28,6 @@ func CsvToParquet(lu settings.LeakUtils, inputFile string, outputFile string, st
 	if !strict {
 		strictMode = "false"
 	}
-
-	delimiter := getDelimiter(inputFile)
 
 	query := fmt.Sprintf(`CREATE TABLE my_table AS FROM read_csv_auto('%s', HEADER=%s, delim='%s', ignore_errors=true, all_varchar=true, null_padding=true, strict_mode=%s);
 		COPY my_table TO '%s' (FORMAT 'parquet', COMPRESSION '%s', ROW_GROUP_SIZE 200_000);`,
@@ -81,8 +82,8 @@ func getDelimiter(inputFile string) string {
 	return delimiter
 }
 
-func csvHasHeader(inputFile string) (hasHeader bool, err error) {
-	firstRow, err := getFirstRowCsv(inputFile)
+func csvHasHeader(inputFile, delimiter string) (hasHeader bool, err error) {
+	firstRow, err := getFirstRowCsv(inputFile, delimiter)
 	if err != nil {
 		return false, err
 	}
@@ -96,10 +97,8 @@ func csvHasHeader(inputFile string) (hasHeader bool, err error) {
 	}
 	knownHeaders := []string{"email", "password", "username", "phone", "lastname", "firstname", "mail", "addresse", "nom", "id"}
 	for _, knownHeader := range knownHeaders {
-		for _, col := range firstRow {
-			if strings.ToLower(col) == knownHeader {
-				return true, nil
-			}
+		if slices.Contains(firstRow, knownHeader) {
+			return true, nil
 		}
 	}
 	return false, nil
@@ -142,15 +141,15 @@ func getNLine(inputFile string, n, offset int) (lines []string, err error) {
 	return lines, nil
 }
 
-func getFirstRowCsv(inputFile string) (row []string, err error) {
-	rows, err := getFirstNRowsCsv(inputFile, 1)
+func getFirstRowCsv(inputFile, delimiter string) (row []string, err error) {
+	rows, err := getFirstNRowsCsv(inputFile, 1, delimiter)
 	if len(rows) == 0 {
 		return nil, fmt.Errorf("no rows found in CSV")
 	}
 	return rows[0], err
 }
 
-func getFirstNRowsCsv(inputFile string, n int) (rows [][]string, err error) {
+func getFirstNRowsCsv(inputFile string, n int, delimiter string) (rows [][]string, err error) {
 	f, err := os.Open(inputFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
@@ -158,6 +157,10 @@ func getFirstNRowsCsv(inputFile string, n int) (rows [][]string, err error) {
 	defer f.Close()
 
 	reader := csv.NewReader(f)
+	if len(delimiter) != 1 {
+		return nil, fmt.Errorf("delimiter must be a single character, got %q", delimiter)
+	}
+	reader.Comma = rune(delimiter[0])
 
 	for i := 0; i < n; i++ {
 		row, err := reader.Read()
