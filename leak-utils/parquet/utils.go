@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-// getColumns retrieves the column names from the Parquet file.
-func getColumns(db *sql.DB, filepath string) ([]string, error) {
+// GetColumns retrieves the column names from the Parquet file.
+func GetColumns(db *sql.DB, filepath string) ([]string, error) {
 	// Create a view from the parquet file
 	query := fmt.Sprintf("CREATE OR REPLACE VIEW parquet_view AS SELECT * FROM read_parquet('%s')", filepath)
 	_, err := db.Exec(query)

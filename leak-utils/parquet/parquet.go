@@ -252,7 +252,7 @@ func GetParquet(db *sql.DB, inputFile string) (parquet *Parquet, err error) {
 	parquet = &Parquet{}
 	parquet.Filepath = inputFile
 
-	parquet.Columns, err = getColumns(db, inputFile)
+	parquet.Columns, err = GetColumns(db, inputFile)
 	if err != nil {
 		return
 	}

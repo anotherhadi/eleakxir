@@ -33,6 +33,7 @@ func main() {
 		"mergeFiles",
 		"deleteFirstLines",
 		"deleteLastLines",
+		"countLinesWithAt",
 		"removeUrlSchemeFromUlp",
 	}
 
@@ -161,6 +162,24 @@ func main() {
 		if err != nil {
 			log.Fatal("Failed to remove last lines", "error", err)
 		}
+		return
+	case "countLinesWithAt":
+		var inputFile *string = flag.StringP("input", "i", "", "Input file")
+		var noColors *bool = flag.Bool("no-colors", false, "Remove all colors")
+		var debug *bool = flag.Bool("debug", false, "Debug mode")
+		flag.Parse()
+		if *inputFile == "" {
+			log.Fatal("Input file are required")
+		}
+		if *noColors {
+			settings.DisableColors()
+		}
+		lu.Debug = *debug
+		countAt, countLine, err := misc.CountLinesWithAt(lu, *inputFile)
+		if err != nil {
+			log.Fatal("Failed to count @", "error", err)
+		}
+		fmt.Println(settings.Base.Render("There are"), settings.Accent.Render(fmt.Sprintf("%d", countAt)), settings.Base.Render("lines with @ out of"), settings.Accent.Render(fmt.Sprintf("%d", countLine)), settings.Base.Render("lines in"), settings.Accent.Render(*inputFile))
 		return
 	case "removeUrlSchemeFromUlp":
 		var inputFile *string = flag.StringP("input", "i", "", "Input Parquet file")
