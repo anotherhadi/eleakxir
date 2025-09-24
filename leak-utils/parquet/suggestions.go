@@ -1,15 +1,20 @@
 package parquet
 
 import (
+	"regexp"
 	"slices"
+	"strings"
+	"unicode"
+
+	"golang.org/x/text/unicode/norm"
 )
 
-func getSuggestion(col string) string {
-	col = formatColumnName(col)
-	knownNames := []string{
+var (
+	knownColumnNames = []string{
 		"date",
 		"phone",
 		"username",
+		"iban",
 		"address",
 		"email",
 		"postal_code",
@@ -28,47 +33,49 @@ func getSuggestion(col string) string {
 		"url",
 		"ip",
 	}
-	if slices.Contains(knownNames, col) {
-		return col
+
+	suggestions = map[string]string{
+		"user":           "username",
+		"login":          "username",
+		"sex":            "gender",
+		"genre":          "gender",
+		"ipaddress":      "ip",
+		"firstname":      "first_name",
+		"prenom":         "first_name",
+		"lastname":       "last_name",
+		"nom":            "last_name",
+		"fullname":       "full_name",
+		"nomcomplet":     "full_name",
+		"adresse":        "address",
+		"streetaddress":  "address",
+		"ville":          "city",
+		"pays":           "country",
+		"mail":           "email",
+		"zip":            "postal_code",
+		"postalcode":     "postal_code",
+		"zipcode":        "postal_code",
+		"postal":         "postal_code",
+		"codepostal":     "postal_code",
+		"hash":           "password_hash",
+		"hashedpassword": "password_hash",
+		"hashpassword":   "password_hash",
+		"passwordhashed": "password_hash",
+		"birthdate":      "birth_date",
+		"dob":            "birth_date",
+		"dateofbirth":    "birth_date",
 	}
-	if col == "user" {
-		return "username"
+)
+
+func getSuggestion(col string) string {
+	colFormated := formatColumnName(col)
+	if slices.Contains(knownColumnNames, colFormated) {
+		return colFormated
 	}
-	if col == "login" {
-		return "username"
-	}
-	if col == "sex" {
-		return "gender"
-	}
-	if col == "ip_address" {
-		return "ip"
-	}
-	if col == "password_hashed" {
-		return "password_hash"
-	}
-	if col == "firstname" {
-		return "first_name"
-	}
-	if col == "lastname" {
-		return "last_name"
-	}
-	if col == "fullname" {
-		return "full_name"
-	}
-	if col == "mail" {
-		return "email"
-	}
-	if col == "zip" || col == "postalcode" || col == "zipcode" || col == "postal" || col == "zip_code" {
-		return "postal_code"
-	}
-	if col == "street_address" {
-		return "address"
-	}
-	if col == "hash" || col == "hashed_password" || col == "hash_password" {
-		return "password_hash"
-	}
-	if col == "birthdate" || col == "dob" || col == "date_of_birth" {
-		return "birth_date"
+
+	col = cleanString(col)
+
+	if val, ok := suggestions[col]; ok {
+		return val
 	}
 
 	return ""
@@ -79,3 +86,18 @@ func getSuggestion(col string) string {
 // url: _url, link
 // address: _address
 //
+
+func cleanString(input string) string {
+	t := norm.NFD.String(input)
+	var sb strings.Builder
+	for _, r := range t {
+		if unicode.Is(unicode.Mn, r) {
+			continue
+		}
+		sb.WriteRune(r)
+	}
+	s := strings.ToLower(sb.String())
+	reg, _ := regexp.Compile("[^a-z]+")
+	s = reg.ReplaceAllString(s, "")
+	return s
+}

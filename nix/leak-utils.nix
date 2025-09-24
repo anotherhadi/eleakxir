@@ -9,7 +9,7 @@
     pname = name;
     version = "0.1.0";
     src = ../leak-utils;
-    vendorHash = "sha256-rTfbXCiwv/+tVXZmgztt088Zhz0OQaVTfvxXVzw4o4Q=";
+    vendorHash = "sha256-qgDqmEgL7B8FvoKNwLG0buLmg9Yt54cyWwmXBifgr/g=";
 
     buildInputs = [
       pkgs.duckdb

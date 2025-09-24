@@ -7,6 +7,7 @@ require (
 	github.com/charmbracelet/log v0.4.2
 	github.com/marcboeker/go-duckdb/v2 v2.4.0
 	github.com/spf13/pflag v1.0.10
+	golang.org/x/text v0.28.0
 )
 
 require (
