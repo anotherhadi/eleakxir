@@ -152,7 +152,11 @@ func configureColumns(input Parquet, skipLineFormating bool) []ColumnOperation {
 
 			case "k", "keep", "":
 				op.OriginalName = "\"" + op.OriginalName + "\""
-				op.NewName = formatColumnName(op.NewName)
+				if input == "" && suggestion != "" {
+					op.NewName = formatColumnName(suggestion)
+				} else {
+					op.NewName = formatColumnName(op.NewName)
+				}
 				op.Action = "rename"
 				operations = append(operations, op)
 				goto nextColumn
