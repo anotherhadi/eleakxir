@@ -31,6 +31,8 @@ func main() {
 		"csvToParquet",
 		// Misc
 		"mergeFiles",
+		"deleteFirstLines",
+		"deleteLastLines",
 		"removeUrlSchemeFromUlp",
 	}
 
@@ -122,6 +124,42 @@ func main() {
 		err := misc.MergeFiles(lu, *outputFile, *inputFiles...)
 		if err != nil {
 			log.Fatal("Failed to merge files", "error", err)
+		}
+		return
+	case "deleteFirstLines":
+		var inputFile *string = flag.StringP("input", "i", "", "Input file")
+		var outputFile *string = flag.StringP("output", "o", "", "Output file")
+		var noColors *bool = flag.Bool("no-colors", false, "Remove all colors")
+		var debug *bool = flag.Bool("debug", false, "Debug mode")
+		flag.Parse()
+		if *inputFile == "" || *outputFile == "" {
+			log.Fatal("Input and output files are required")
+		}
+		if *noColors {
+			settings.DisableColors()
+		}
+		lu.Debug = *debug
+		err := misc.DeleteFirstLines(lu, *inputFile, *outputFile, 30)
+		if err != nil {
+			log.Fatal("Failed to remove first lines", "error", err)
+		}
+		return
+	case "deleteLastLines":
+		var inputFile *string = flag.StringP("input", "i", "", "Input file")
+		var outputFile *string = flag.StringP("output", "o", "", "Output file")
+		var noColors *bool = flag.Bool("no-colors", false, "Remove all colors")
+		var debug *bool = flag.Bool("debug", false, "Debug mode")
+		flag.Parse()
+		if *inputFile == "" || *outputFile == "" {
+			log.Fatal("Input and output files are required")
+		}
+		if *noColors {
+			settings.DisableColors()
+		}
+		lu.Debug = *debug
+		err := misc.DeleteLastLines(lu, *inputFile, *outputFile, 30)
+		if err != nil {
+			log.Fatal("Failed to remove last lines", "error", err)
 		}
 		return
 	case "removeUrlSchemeFromUlp":
