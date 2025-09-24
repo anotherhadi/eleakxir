@@ -2,7 +2,7 @@
   import axios from "axios";
   import { marked } from "marked";
   import { onMount } from "svelte";
-  const url = "https://raw.githubusercontent.com/anotherhadi/eleakxir-temp/refs/heads/main/leak-utils/README.md"
+  const url = "https://raw.githubusercontent.com/anotherhadi/eleakxir/refs/heads/main/leak-utils/README.md"
 
   let text = $state<string>("");
 

@@ -3,7 +3,7 @@
 This normalization framework is designed to standardize data leaks for
 [Eleakxir](https://github.com/anotherhadi/eleakxir), the open-source search
 engine, using
-[leak-utils](https://github.com/anotherhadi/eleakxir-temp/blob/main/leak-utils/README.md),
+[leak-utils](https://github.com/anotherhadi/eleakxir/blob/main/leak-utils/README.md),
 a dedicated CLI tool that converts and cleans files for efficient indexing and
 searching.
 
