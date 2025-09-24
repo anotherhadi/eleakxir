@@ -95,7 +95,7 @@ func csvHasHeader(inputFile string) (hasHeader bool, err error) {
 		col = strings.ReplaceAll(col, ".", "")
 		firstRow[i] = strings.ToLower(strings.TrimSpace(col))
 	}
-	knownHeaders := []string{"email", "password", "username", "phone", "lastname", "firstname"}
+	knownHeaders := []string{"email", "password", "username", "phone", "lastname", "firstname", "mail", "addresse", "nom", "id"}
 	for _, knownHeader := range knownHeaders {
 		if slices.Contains(firstRow, knownHeader) {
 			return true, nil
