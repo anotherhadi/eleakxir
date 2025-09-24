@@ -13,6 +13,7 @@ var (
 	knownColumnNames = []string{
 		"date",
 		"creation_date",
+		"bio",
 		"phone",
 		"username",
 		"iban",
@@ -38,6 +39,7 @@ var (
 	suggestions = map[string]string{
 		"user":            "username",
 		"login":           "username",
+		"description":     "bio",
 		"sex":             "gender",
 		"civilite":        "gender",
 		"genre":           "gender",
