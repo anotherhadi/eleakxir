@@ -9,7 +9,7 @@
     pname = name;
     version = "0.1.0";
     src = ../back;
-    vendorHash = "";
+    vendorHash = "sha256-qcVD95OUA7hUp4Wrx7Pyp41220RQ0IzPDiO6HHUHmDk=";
 
     buildInputs = [
       pkgs.duckdb
