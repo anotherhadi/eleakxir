@@ -10,8 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TODO: We need to know when we hit the LIMIT
-
 func routes(s *server.Server, cache *map[string]*search.Result) {
 	s.Router.Use(
 		func(c *gin.Context) {

@@ -8,6 +8,7 @@ type LeakResult = {
   Duration: number;
   Error: string;
   Rows: Array<Record<string, string>>;
+  LimitHit: boolean;
 };
 
 type GithubResult = {

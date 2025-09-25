@@ -15,6 +15,7 @@ type LeakResult struct {
 	Duration time.Duration
 	Rows     []map[string]string
 	Error    string
+	LimitHit bool // Whether the search hit the limit
 }
 
 func Search(s *server.Server, queryText, column string, exactMatch bool) LeakResult {
@@ -74,6 +75,10 @@ func Search(s *server.Server, queryText, column string, exactMatch bool) LeakRes
 	if err = rows.Err(); err != nil {
 		result.Error = err.Error()
 		return result
+	}
+
+	if len(result.Rows) >= s.Settings.Limit {
+		result.LimitHit = true
 	}
 
 	result.Rows = removeDuplicateMaps(result.Rows)

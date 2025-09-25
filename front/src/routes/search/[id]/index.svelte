@@ -170,6 +170,15 @@
                 result.LeakResult.Duration,
               )}
             </p>
+            {#if result.LeakResult.LimitHit}
+              <div role="alert" class="alert alert-soft my-4">
+                <CircleAlert size={20} />
+                <div>
+                  <span class="font-semibold">Limit hit!</span> Consider refining
+                  your search query for more specific results.
+                </div>
+              </div>
+            {/if}
             <Rows {result} />
           {/if}
         </div>
