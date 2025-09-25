@@ -55,6 +55,9 @@
   --color-accent: oklch(0.6241 0.1575 277.95);
   --color-accent-content: oklch(0.1248 0.031 280.93);
 
+  --color-neutral: oklch(0.5119 0.0153 269.13);
+  --color-neutral-content: oklch(0.9073 0.003 264.54);
+
   --radius-selector: 1rem;
   --radius-field: 0.5rem;
   --radius-box: 1rem;
