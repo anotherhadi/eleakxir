@@ -34,7 +34,9 @@
     <span class="text-primary font-semibold">Standard Search:</span> By default,
     Eleakxir uses a "fuzzy" search. This means it will find results where your search
     terms are part of a larger string. For example, searching for 1234 would find
-    john.doe@1234.com.
+    john.doe@1234.com. Multiple terms are combined with <b>AND</b>, so all terms
+    must be present, while multiple columns are combined with <b>OR</b>, so a match
+    in any column counts.
   </p>
 
   <p>
@@ -42,5 +44,14 @@
     "Exact Match," the search will only return results where the data in a column
     is an exact match for your search term. This is useful for finding specific,
     unique values.
+  </p>
+
+  <p>
+    <span class="text-primary font-semibold">Starts With or Ends With:</span>
+    You can refine your search by using <code>^</code> at the beginning of a term
+    to match only values that <b>start with</b> that term, or <code>$</code> at the
+    end of a term to match only values that <b>end with</b> that term. For example,
+    <code>^admin</code> will find entries starting with "admin", while
+    <code>user$</code> will find entries ending with "user".
   </p>
 </div>

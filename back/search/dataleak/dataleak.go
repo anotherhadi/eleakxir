@@ -117,40 +117,63 @@ func removeDuplicateMaps(maps []map[string]string) []map[string]string {
 }
 
 func buildSqlQuery(s *server.Server, queryText, column string, exactMatch bool) string {
-	limit := strconv.Itoa(s.Settings.Limit)
-	from := getFromClause(s)
-	if column == "name" {
+	// Normalize "name" -> "full_name"
+	if strings.EqualFold(column, "name") {
 		column = "full_name"
 	}
-	columns := []string{column}
+
+	// Step 1: Determine candidate columns to search
+	var candidateColumns []string
 	if column == "all" || column == "" {
-		columns = s.Settings.BaseColumns
+		// Use base columns if "all" or empty
+		candidateColumns = s.Settings.BaseColumns
+	} else {
+		// Otherwise, only search the given column
+		candidateColumns = []string{column}
 	}
-	columnsFiltered := []string{}
-	allColumns := []string{}
-	// TODO: Add columns that ends with _col aswell
+
+	// Step 2: Collect all available columns across dataleaks
+	allColumns := make([]string, 0)
+	seen := make(map[string]struct{})
 	for _, dataleak := range *s.Dataleaks {
 		for _, col := range dataleak.Columns {
-			if !slices.Contains(allColumns, col) {
+			if _, ok := seen[col]; !ok {
+				seen[col] = struct{}{}
 				allColumns = append(allColumns, col)
 			}
 		}
 	}
-	if column == "full_text" {
+
+	// Step 3: Resolve which columns should actually be used in the WHERE clause
+	var columnsFiltered []string
+	if strings.EqualFold(column, "full_text") {
+		// "full_text" means search across all columns
 		columnsFiltered = allColumns
 	} else {
-		for _, col := range columns {
-			if slices.Contains(allColumns, col) {
-				columnsFiltered = append(columnsFiltered, col)
+		for _, candidate := range candidateColumns {
+			for _, available := range allColumns {
+				// Exact match (case-insensitive)
+				if strings.EqualFold(available, candidate) {
+					columnsFiltered = append(columnsFiltered, available)
+					continue
+				}
+				// Match columns ending with "_<candidate>"
+				if strings.HasSuffix(strings.ToLower(available), "_"+strings.ToLower(candidate)) {
+					columnsFiltered = append(columnsFiltered, available)
+				}
 			}
 		}
 	}
+
+	limit := strconv.Itoa(s.Settings.Limit)
+	from := getFromClause(s)
 
 	if len(columnsFiltered) == 0 {
 		return fmt.Sprintf("SELECT * FROM %s LIMIT %s", from, limit)
 	}
 
 	where := getWhereClause(queryText, columnsFiltered, exactMatch)
+
 	return fmt.Sprintf("SELECT * FROM %s WHERE %s LIMIT %s", from, where, limit)
 }
 
@@ -162,8 +185,19 @@ func getWhereClause(queryText string, columns []string, exactMatch bool) string 
 		var orClausesForTerm []string
 		termEscaped := strings.ReplaceAll(term, "'", "''")
 
+		startsWith := false
+		endsWith := false
+		if strings.HasPrefix(termEscaped, "^") {
+			startsWith = true
+			termEscaped = strings.TrimPrefix(termEscaped, "^")
+		}
+		if strings.HasSuffix(termEscaped, "$") {
+			endsWith = true
+			termEscaped = strings.TrimSuffix(termEscaped, "$")
+		}
+
 		for _, col := range columns {
-			if exactMatch {
+			if exactMatch || (startsWith && endsWith) {
 				termEscapedILike := strings.ReplaceAll(termEscaped, "_", "\\_")
 				termEscapedILike = strings.ReplaceAll(termEscapedILike, "%", "\\%")
 				orClausesForTerm = append(orClausesForTerm, fmt.Sprintf("\"%s\" ILIKE '%s' ESCAPE '\\'", col, strings.ToLower(termEscapedILike)))
@@ -171,7 +205,13 @@ func getWhereClause(queryText string, columns []string, exactMatch bool) string 
 				// Escape characters for ILIKE
 				termEscapedILike := strings.ReplaceAll(termEscaped, "_", "\\_")
 				termEscapedILike = strings.ReplaceAll(termEscapedILike, "%", "\\%")
-				orClausesForTerm = append(orClausesForTerm, fmt.Sprintf("\"%s\" ILIKE '%%%s%%' ESCAPE '\\'", col, strings.ToLower(termEscapedILike)))
+				if startsWith {
+					orClausesForTerm = append(orClausesForTerm, fmt.Sprintf("\"%s\" ILIKE '%s%%' ESCAPE '\\'", col, strings.ToLower(termEscapedILike)))
+				} else if endsWith {
+					orClausesForTerm = append(orClausesForTerm, fmt.Sprintf("\"%s\" ILIKE '%%%s' ESCAPE '\\'", col, strings.ToLower(termEscapedILike)))
+				} else {
+					orClausesForTerm = append(orClausesForTerm, fmt.Sprintf("\"%s\" ILIKE '%%%s%%' ESCAPE '\\'", col, strings.ToLower(termEscapedILike)))
+				}
 			}
 		}
 		andClauses = append(andClauses, "("+strings.Join(orClausesForTerm, " OR ")+")")

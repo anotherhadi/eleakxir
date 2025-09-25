@@ -41,7 +41,6 @@
       })
       .then((r) => {
         result = r.data;
-        console.log(r.data);
         if (result && result.Status !== "pending") {
           clearInterval(intervalId);
         }
@@ -120,7 +119,7 @@
         <Stats {result} />
       </div>
 
-      {#if result.LeakResult.Error !== "not enabled" }
+      {#if result.LeakResult.Error !== "not enabled"}
         <div class="collapse collapse-arrow bg-base-100 border">
           <input type="radio" name="my-accordion-2" checked={true} />
           <div
@@ -187,7 +186,7 @@
           </div>
         </div>
       {/if}
-      {#if result.GithubResult.Error !== "not enabled" }
+      {#if result.GithubResult.Error !== "not enabled"}
         <div class="collapse collapse-arrow bg-base-100 border">
           <input type="radio" name="my-accordion-2" />
           <div

@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -35,6 +36,9 @@ type Result struct {
 func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 	var wg sync.WaitGroup
 
+	cleanQueryText := strings.TrimPrefix(q.Text, "^")
+	cleanQueryText = strings.TrimSuffix(q.Text, "$")
+
 	mu.Lock()
 	r.Date = time.Now()
 	r.Status = "pending"
@@ -65,9 +69,13 @@ func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 			wg.Done()
 			return
 		}
-		githubResult := osint.Search(s, q.Text, q.Column)
+		githubResult := osint.Search(s, cleanQueryText, q.Column)
 		mu.Lock()
-		r.GithubResult = *githubResult
+		if githubResult == nil {
+			r.GithubResult = osint.GithubResult{}
+		} else {
+			r.GithubResult = *githubResult
+		}
 		mu.Unlock()
 		wg.Done()
 	}()
