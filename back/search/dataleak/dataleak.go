@@ -196,22 +196,17 @@ func getWhereClause(queryText string, columns []string, exactMatch bool) string 
 			termEscaped = strings.TrimSuffix(termEscaped, "$")
 		}
 
+		termEscapedILike := strings.ReplaceAll(termEscaped, "_", "\\_")
+		termEscapedILike = strings.ReplaceAll(termEscapedILike, "%", "\\%")
 		for _, col := range columns {
 			if exactMatch || (startsWith && endsWith) {
-				termEscapedILike := strings.ReplaceAll(termEscaped, "_", "\\_")
-				termEscapedILike = strings.ReplaceAll(termEscapedILike, "%", "\\%")
 				orClausesForTerm = append(orClausesForTerm, fmt.Sprintf("\"%s\" ILIKE '%s' ESCAPE '\\'", col, strings.ToLower(termEscapedILike)))
+			} else if startsWith {
+				orClausesForTerm = append(orClausesForTerm, fmt.Sprintf("\"%s\" ILIKE '%s%%' ESCAPE '\\'", col, strings.ToLower(termEscapedILike)))
+			} else if endsWith {
+				orClausesForTerm = append(orClausesForTerm, fmt.Sprintf("\"%s\" ILIKE '%%%s' ESCAPE '\\'", col, strings.ToLower(termEscapedILike)))
 			} else {
-				// Escape characters for ILIKE
-				termEscapedILike := strings.ReplaceAll(termEscaped, "_", "\\_")
-				termEscapedILike = strings.ReplaceAll(termEscapedILike, "%", "\\%")
-				if startsWith {
-					orClausesForTerm = append(orClausesForTerm, fmt.Sprintf("\"%s\" ILIKE '%s%%' ESCAPE '\\'", col, strings.ToLower(termEscapedILike)))
-				} else if endsWith {
-					orClausesForTerm = append(orClausesForTerm, fmt.Sprintf("\"%s\" ILIKE '%%%s' ESCAPE '\\'", col, strings.ToLower(termEscapedILike)))
-				} else {
-					orClausesForTerm = append(orClausesForTerm, fmt.Sprintf("\"%s\" ILIKE '%%%s%%' ESCAPE '\\'", col, strings.ToLower(termEscapedILike)))
-				}
+				orClausesForTerm = append(orClausesForTerm, fmt.Sprintf("\"%s\" ILIKE '%%%s%%' ESCAPE '\\'", col, strings.ToLower(termEscapedILike)))
 			}
 		}
 		andClauses = append(andClauses, "("+strings.Join(orClausesForTerm, " OR ")+")")
@@ -225,12 +220,4 @@ func getFromClause(s *server.Server) string {
 		parquets = append(parquets, "'"+dataleak.Path+"'")
 	}
 	return fmt.Sprintf("read_parquet([%s], union_by_name=true, filename=true)", strings.Join(parquets, ", "))
-}
-
-func castAllColumns(cols []string) []string {
-	casted := make([]string, len(cols))
-	for i, col := range cols {
-		casted[i] = fmt.Sprintf("cast(%s as text)", col)
-	}
-	return casted
 }
