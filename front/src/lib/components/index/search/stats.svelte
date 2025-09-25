@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Server } from "$src/lib/types";
   import { Database, File, Save } from "@lucide/svelte";
+    import { unmount } from "svelte";
 
   const { serverInfo }: { serverInfo: Server | null } = $props();
 
@@ -16,7 +17,7 @@
     </div>
     <div class="stat-title">Rows available</div>
     <div class="stat-value">
-      {serverInfo?.TotalRows
+      {serverInfo?.TotalRows !== undefined
         ? serverInfo.TotalRows.toLocaleString("fr")
         : "-- --- --- ---"}
     </div>
@@ -27,7 +28,7 @@
     </div>
     <div class="stat-title">Data wells available</div>
     <div class="stat-value">
-      {serverInfo?.TotalDataleaks
+      {serverInfo?.TotalDataleaks !== undefined
         ? serverInfo.TotalDataleaks.toLocaleString("fr")
         : "---"}
     </div>
@@ -38,7 +39,7 @@
     </div>
     <div class="stat-title">Storage used</div>
     <div class="stat-value">
-      {serverInfo?.TotalSize
+      {serverInfo?.TotalSize !== undefined
         ? mbToGb(serverInfo.TotalSize).toLocaleString("fr") + " Gb"
         : "--- Gb"}
     </div>
