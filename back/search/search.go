@@ -16,6 +16,10 @@ type Query struct {
 	Text       string
 	Column     string // The column to search in (e.g., "email", "password", etc.
 	ExactMatch bool   // Whether to search for an exact match
+
+	// Services
+	Datawells   bool // Whether to include datawells in the search
+	GithubRecon bool // Whether to include github-recon in the search
 }
 
 type Result struct {
@@ -38,8 +42,14 @@ func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 	mu.Unlock()
 
 	wg.Add(2)
-
 	go func() {
+		if !q.Datawells {
+			mu.Lock()
+			r.LeakResult = dataleak.LeakResult{Error: "not enabled"}
+			mu.Unlock()
+			wg.Done()
+			return
+		}
 		leakResult := dataleak.Search(s, q.Text, q.Column, q.ExactMatch)
 		mu.Lock()
 		r.LeakResult = leakResult
@@ -48,6 +58,13 @@ func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 	}()
 
 	go func() {
+		if !q.GithubRecon {
+			mu.Lock()
+			r.GithubResult = osint.GithubResult{Error: "not enabled"}
+			mu.Unlock()
+			wg.Done()
+			return
+		}
 		githubResult := osint.Search(s, q.Text, q.Column)
 		mu.Lock()
 		r.GithubResult = *githubResult

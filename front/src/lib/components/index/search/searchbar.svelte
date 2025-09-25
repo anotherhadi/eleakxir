@@ -1,19 +1,22 @@
 <script lang="ts">
   import { serverPassword, serverUrl } from "$src/lib/stores/server";
   import { cn } from "$src/lib/utils";
-  import { Equal, EqualNot, Search } from "@lucide/svelte";
+  import { Equal, EqualNot, Search, Settings } from "@lucide/svelte";
   import axios from "axios";
-  import { navigate } from "sv-router/generated";
   import { toast } from "svelte-sonner";
 
   const {
     initialQuery = "",
     initialFilter = "all",
     initialExactMatch = false,
+    initialDatawells = true,
+    initialGithubRecon = true,
   }: {
     initialQuery?: string;
     initialFilter?: string;
     initialExactMatch?: boolean;
+    initialDatawells?: boolean;
+    initialGithubRecon?: boolean;
   } = $props();
 
   let filters = [
@@ -30,12 +33,14 @@
   let activeFilter = $state<string>(initialFilter);
   let query = $state<string>(initialQuery);
   let exactMatch = $state<boolean>(initialExactMatch);
+  let datawells = $state<boolean>(initialDatawells);
+  let githubRecon = $state<boolean>(initialGithubRecon);
 
   function NewSearch() {
     axios
       .post(
         `${$serverUrl}/search`,
-        { Text: query, Column: activeFilter, ExactMatch: exactMatch },
+        { Text: query, Column: activeFilter, ExactMatch: exactMatch, Datawells: datawells, GithubRecon: githubRecon },
         {
           headers: {
             "Content-Type": "application/json",
@@ -58,20 +63,43 @@
 </script>
 
 <div class="flex gap-5 flex-col">
-  <div
-    class="flex gap-3 justify-start items-center w-full overflow-y-hidden overflow-x-auto"
-  >
-    {#each filters as filter}
-      <button
-        class={cn(
-          "btn btn-md capitalize",
-          activeFilter === filter
-            ? "btn-primary"
-            : "btn-ghost btn-neutral text-base-content/80 hover:text-neutral-content",
-        )}
-        onclick={() => (activeFilter = filter)}>{filter.replace("_", " ")}</button
+  <div class="w-full flex justify-between gap-5">
+    <div
+      class="flex gap-3 justify-start items-center w-full overflow-y-hidden overflow-x-auto"
+    >
+      {#each filters as filter}
+        <button
+          class={cn(
+            "btn btn-md capitalize",
+            activeFilter === filter
+              ? "btn-primary"
+              : "btn-ghost btn-neutral text-base-content/80 hover:text-neutral-content",
+          )}
+          onclick={() => (activeFilter = filter)}
+          >{filter.replace("_", " ")}</button
+        >
+      {/each}
+    </div>
+
+    <details class="dropdown dropdown-end">
+      <summary class="btn btn-square m-1"><Settings size={16} /></summary>
+      <ul
+        class="menu dropdown-content bg-base-200 rounded-box z-1 w-52 p-2 shadow-sm"
       >
-    {/each}
+        <li>
+          <label class="label">
+            <input type="checkbox" bind:checked={datawells} class="checkbox" />
+            Datawells lookup
+          </label>
+        </li>
+        <li>
+          <label class="label">
+            <input type="checkbox" bind:checked={githubRecon} class="checkbox" />
+            Github Recon
+          </label>
+        </li>
+      </ul>
+    </details>
   </div>
 
   <form

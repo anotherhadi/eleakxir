@@ -2,6 +2,10 @@ type Query = {
   Text: string;
   Column: string;
   ExactMatch: boolean;
+
+  // Services
+  Datawells: boolean;
+  GithubRecon: boolean;
 };
 
 type LeakResult = {

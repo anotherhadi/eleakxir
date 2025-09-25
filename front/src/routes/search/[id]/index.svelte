@@ -108,6 +108,8 @@
         initialQuery={result.Query.Text}
         initialFilter={result.Query.Column}
         initialExactMatch={result.Query.ExactMatch}
+        initialDatawells={result.Query.Datawells}
+        initialGithubRecon={result.Query.GithubRecon}
       />
     </header>
 
@@ -118,116 +120,120 @@
         <Stats {result} />
       </div>
 
-      <div class="collapse collapse-arrow bg-base-100 border">
-        <input type="radio" name="my-accordion-2" checked={true} />
-        <div
-          class="collapse-title font-semibold text-xl flex justify-between items-center"
-        >
-          <div class="flex items-center gap-2">
-            <Database size={18} class="text-base-content/60" />
-            Data wells lookup
-          </div>
-          {#if result.LeakResult.Error !== ""}
-            <CircleX size={16} class="text-error" />
-          {:else if result.LeakResult.Duration === 0}
-            <span class="loading loading-dots loading-xs"></span>
-          {:else if result.LeakResult.Rows.length > 0}
-            <CircleCheck size={16} class="text-success" />
-          {:else}
-            <CircleMinus size={16} class="text-base-content/60" />
-          {/if}
-        </div>
-        <div class="collapse-content">
-          {#if result.LeakResult.Error !== ""}
-            <div role="alert" class="alert alert-soft alert-error">
-              <CircleAlert size={20} />
-              <span>Error! {result.LeakResult.Error}</span>
+      {#if result.LeakResult.Error !== "not enabled" }
+        <div class="collapse collapse-arrow bg-base-100 border">
+          <input type="radio" name="my-accordion-2" checked={true} />
+          <div
+            class="collapse-title font-semibold text-xl flex justify-between items-center"
+          >
+            <div class="flex items-center gap-2">
+              <Database size={18} class="text-base-content/60" />
+              Data wells lookup
             </div>
-          {:else if result.LeakResult.Duration === 0}
-            <ul class="list rounded-box">
-              {#each Array(5) as _}
-                <div class="list-row text-left">
-                  <div>
-                    <div
-                      class="skeleton size-10 rounded-box items-center justify-center flex"
-                    ></div>
-                  </div>
-                  <div>
-                    <div class="skeleton h-5 mb-1 w-52"></div>
-                    <div
-                      class="text-xs skeleton h-4 w-34 uppercase font-semibold opacity-60"
-                    ></div>
-                  </div>
-                  <div class="btn btn-square btn-ghost">
-                    <ChevronDown size={12} />
-                  </div>
-                </div>
-              {/each}
-            </ul>
-          {:else}
-            <p class="text-base-content/60">
-              {result.LeakResult.Rows.length} results in {convertNanoSeconds(
-                result.LeakResult.Duration,
-              )}
-            </p>
-            {#if result.LeakResult.LimitHit}
-              <div role="alert" class="alert alert-soft my-4">
-                <CircleAlert size={20} />
-                <div>
-                  <span class="font-semibold">Limit hit!</span> Consider refining
-                  your search query for more specific results.
-                </div>
-              </div>
+            {#if result.LeakResult.Error !== ""}
+              <CircleX size={16} class="text-error" />
+            {:else if result.LeakResult.Duration === 0}
+              <span class="loading loading-dots loading-xs"></span>
+            {:else if result.LeakResult.Rows.length > 0}
+              <CircleCheck size={16} class="text-success" />
+            {:else}
+              <CircleMinus size={16} class="text-base-content/60" />
             {/if}
-            <Rows {result} />
-          {/if}
-        </div>
-      </div>
-      <div class="collapse collapse-arrow bg-base-100 border">
-        <input type="radio" name="my-accordion-2" />
-        <div
-          class="collapse-title font-semibold text-xl flex justify-between items-center"
-        >
-          <div class="flex items-center gap-2">
-            <Github size={18} class="text-base-content/60" />
-            Github Recon
           </div>
-          {#if result.GithubResult.Error !== ""}
-            <CircleX size={16} class="text-error" />
-          {:else if result.GithubResult.Duration === 0}
-            <span class="loading loading-dots loading-xs"></span>
-          {:else if !result.GithubResult.EmailResult?.Commits && !result.GithubResult.EmailResult?.Spoofing && !result.GithubResult.UsernameResult?.User}
-            <CircleMinus size={16} class="text-base-content/60" />
-          {:else if result.GithubResult.UsernameResult || result.GithubResult.EmailResult}
-            <CircleCheck size={16} class="text-success" />
-          {/if}
+          <div class="collapse-content">
+            {#if result.LeakResult.Error !== ""}
+              <div role="alert" class="alert alert-soft alert-error">
+                <CircleAlert size={20} />
+                <span>Error! {result.LeakResult.Error}</span>
+              </div>
+            {:else if result.LeakResult.Duration === 0}
+              <ul class="list rounded-box">
+                {#each Array(5) as _}
+                  <div class="list-row text-left">
+                    <div>
+                      <div
+                        class="skeleton size-10 rounded-box items-center justify-center flex"
+                      ></div>
+                    </div>
+                    <div>
+                      <div class="skeleton h-5 mb-1 w-52"></div>
+                      <div
+                        class="text-xs skeleton h-4 w-34 uppercase font-semibold opacity-60"
+                      ></div>
+                    </div>
+                    <div class="btn btn-square btn-ghost">
+                      <ChevronDown size={12} />
+                    </div>
+                  </div>
+                {/each}
+              </ul>
+            {:else}
+              <p class="text-base-content/60">
+                {result.LeakResult.Rows.length} results in {convertNanoSeconds(
+                  result.LeakResult.Duration,
+                )}
+              </p>
+              {#if result.LeakResult.LimitHit}
+                <div role="alert" class="alert alert-soft my-4">
+                  <CircleAlert size={20} />
+                  <div>
+                    <span class="font-semibold">Limit hit!</span> Consider refining
+                    your search query for more specific results.
+                  </div>
+                </div>
+              {/if}
+              <Rows {result} />
+            {/if}
+          </div>
         </div>
-        <div class="collapse-content">
-          {#if result.GithubResult.Error !== ""}
-            <div role="alert" class="alert alert-soft alert-error">
-              <CircleAlert size={20} />
-              <span>Error! {result.GithubResult.Error}</span>
+      {/if}
+      {#if result.GithubResult.Error !== "not enabled" }
+        <div class="collapse collapse-arrow bg-base-100 border">
+          <input type="radio" name="my-accordion-2" />
+          <div
+            class="collapse-title font-semibold text-xl flex justify-between items-center"
+          >
+            <div class="flex items-center gap-2">
+              <Github size={18} class="text-base-content/60" />
+              Github Recon
             </div>
-          {:else if result.GithubResult.Duration === 0}
-            <div role="alert" class="alert alert-soft">
-              <span class="loading loading-dots loading-sm"></span>
-              <span>Loading...</span>
-            </div>
-          {:else if !result.GithubResult.EmailResult?.Commits && !result.GithubResult.EmailResult?.Spoofing && !result.GithubResult.UsernameResult?.User}
-            <div role="alert" class="alert alert-soft">
-              <CircleMinus size={20} />
-              <span>No result</span>
-            </div>
-          {:else}
-            <p class="text-base-content/60 mb-4">
-              Found a result in {convertNanoSeconds(
-                result.GithubResult.Duration,
-              )}
-            </p>
-            <GithubResult githubResult={result.GithubResult} />
-          {/if}
+            {#if result.GithubResult.Error !== ""}
+              <CircleX size={16} class="text-error" />
+            {:else if result.GithubResult.Duration === 0}
+              <span class="loading loading-dots loading-xs"></span>
+            {:else if !result.GithubResult.EmailResult?.Commits && !result.GithubResult.EmailResult?.Spoofing && !result.GithubResult.UsernameResult?.User}
+              <CircleMinus size={16} class="text-base-content/60" />
+            {:else if result.GithubResult.UsernameResult || result.GithubResult.EmailResult}
+              <CircleCheck size={16} class="text-success" />
+            {/if}
+          </div>
+          <div class="collapse-content">
+            {#if result.GithubResult.Error !== ""}
+              <div role="alert" class="alert alert-soft alert-error">
+                <CircleAlert size={20} />
+                <span>Error! {result.GithubResult.Error}</span>
+              </div>
+            {:else if result.GithubResult.Duration === 0}
+              <div role="alert" class="alert alert-soft">
+                <span class="loading loading-dots loading-sm"></span>
+                <span>Loading...</span>
+              </div>
+            {:else if !result.GithubResult.EmailResult?.Commits && !result.GithubResult.EmailResult?.Spoofing && !result.GithubResult.UsernameResult?.User}
+              <div role="alert" class="alert alert-soft">
+                <CircleMinus size={20} />
+                <span>No result</span>
+              </div>
+            {:else}
+              <p class="text-base-content/60 mb-4">
+                Found a result in {convertNanoSeconds(
+                  result.GithubResult.Duration,
+                )}
+              </p>
+              <GithubResult githubResult={result.GithubResult} />
+            {/if}
+          </div>
         </div>
-      </div>
+      {/if}
     </div>
   {/if}
 
