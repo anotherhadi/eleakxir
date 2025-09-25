@@ -12,6 +12,7 @@
       result.GithubResult.EmailResult?.Commits?.length | 0,
       result.GithubResult.EmailResult?.Spoofing ? 1 : 0,
       result.GithubResult.UsernameResult?.Commits?.length | 0,
+      result.GravatarResult.Results?.length | 0,
     ];
     nresult = r.reduce((a, b) => a + b, 0);
   });
@@ -45,9 +46,15 @@
     </div>
     <div class="stat-title">Status</div>
     <div class="stat-value" class:animate-pulse={result.Status === "pending"}>
-      {result.Status}
       {#if result.Status === "pending"}
+        Pending
         <span class="loading loading-dots loading-xs ml-2"></span>
+      {:else if result.Status === "completed" && nresult === 0}
+        No results
+      {:else if result.Status === "completed" && nresult > 0}
+        Completed
+      {:else}
+        {result.Status}
       {/if}
     </div>
   </div>

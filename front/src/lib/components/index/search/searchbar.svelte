@@ -11,12 +11,14 @@
     initialExactMatch = false,
     initialDatawells = true,
     initialGithubRecon = true,
+    initialGravatarRecon = true,
   }: {
     initialQuery?: string;
     initialFilter?: string;
     initialExactMatch?: boolean;
     initialDatawells?: boolean;
     initialGithubRecon?: boolean;
+    initialGravatarRecon?: boolean;
   } = $props();
 
   let filters = [
@@ -35,12 +37,13 @@
   let exactMatch = $state<boolean>(initialExactMatch);
   let datawells = $state<boolean>(initialDatawells);
   let githubRecon = $state<boolean>(initialGithubRecon);
+  let gravatarRecon = $state<boolean>(initialGravatarRecon);
 
   function NewSearch() {
     axios
       .post(
         `${$serverUrl}/search`,
-        { Text: query, Column: activeFilter, ExactMatch: exactMatch, Datawells: datawells, GithubRecon: githubRecon },
+        { Text: query, Column: activeFilter, ExactMatch: exactMatch, Datawells: datawells, GithubRecon: githubRecon, GravatarRecon: gravatarRecon },
         {
           headers: {
             "Content-Type": "application/json",
@@ -96,6 +99,12 @@
           <label class="label">
             <input type="checkbox" bind:checked={githubRecon} class="checkbox" />
             Github Recon
+          </label>
+        </li>
+        <li>
+          <label class="label">
+            <input type="checkbox" bind:checked={gravatarRecon} class="checkbox" />
+            Gravatar Recon
           </label>
         </li>
       </ul>

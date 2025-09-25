@@ -60,9 +60,9 @@
           </td>
         </tr>
         <tr class="hover:bg-base-300">
-          <th>Google hunt</th>
+          <th>Gravatar recon</th>
           <td>
-            {#if serverInfo.Settings.GithubRecon === true}
+            {#if serverInfo.Settings.GravatarRecon === true}
               <div class="inline-grid *:[grid-area:1/1] mr-2">
                 <div class="status status-success"></div>
                 <div class="status status-success"></div>

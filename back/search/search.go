@@ -19,8 +19,9 @@ type Query struct {
 	ExactMatch bool   // Whether to search for an exact match
 
 	// Services
-	Datawells   bool // Whether to include datawells in the search
-	GithubRecon bool // Whether to include github-recon in the search
+	Datawells     bool // Whether to include datawells in the search
+	GithubRecon   bool // Whether to include github-recon in the search
+	GravatarRecon bool // Whether to include gravatar-recon in the search
 }
 
 type Result struct {
@@ -29,15 +30,13 @@ type Result struct {
 	Status string // "pending", "completed"
 	Query  Query
 
-	LeakResult   dataleak.LeakResult
-	GithubResult osint.GithubResult
+	LeakResult     dataleak.LeakResult
+	GithubResult   osint.GithubResult
+	GravatarResult osint.GravatarResult
 }
 
 func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 	var wg sync.WaitGroup
-
-	cleanQueryText := strings.TrimPrefix(q.Text, "^")
-	cleanQueryText = strings.TrimSuffix(q.Text, "$")
 
 	mu.Lock()
 	r.Date = time.Now()
@@ -45,11 +44,11 @@ func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 	r.Query = q
 	mu.Unlock()
 
-	wg.Add(2)
+	wg.Add(3)
 	go func() {
 		if !q.Datawells {
 			mu.Lock()
-			r.LeakResult = dataleak.LeakResult{Error: "not enabled"}
+			r.LeakResult = dataleak.LeakResult{Inactive: true}
 			mu.Unlock()
 			wg.Done()
 			return
@@ -61,21 +60,52 @@ func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 		wg.Done()
 	}()
 
+	cleanQueryText := strings.TrimPrefix(q.Text, "^")
+	cleanQueryText = strings.TrimSuffix(q.Text, "$")
+	isEmail := false
+	isUsername := false
+
+	if q.Column == "email" || strings.HasSuffix(q.Column, "_email") ||
+		q.Column == "username" || strings.HasSuffix(q.Column, "_username") ||
+		q.Column == "" || q.Column == "all" {
+		if isValidEmail(cleanQueryText) {
+			isEmail = true
+		} else if isValidUsername(cleanQueryText) {
+			isUsername = true
+		}
+	}
+
 	go func() {
-		if !q.GithubRecon {
+		if !q.GithubRecon || !s.Settings.GithubRecon || (!isEmail && !isUsername) {
 			mu.Lock()
-			r.GithubResult = osint.GithubResult{Error: "not enabled"}
+			r.GithubResult = osint.GithubResult{Inactive: true}
 			mu.Unlock()
 			wg.Done()
 			return
 		}
-		githubResult := osint.Search(s, cleanQueryText, q.Column)
-		mu.Lock()
-		if githubResult == nil {
-			r.GithubResult = osint.GithubResult{}
-		} else {
-			r.GithubResult = *githubResult
+		var githubResult osint.GithubResult
+		if isEmail {
+			githubResult = osint.GithubSearch(s, cleanQueryText, "email")
+		} else if isUsername {
+			githubResult = osint.GithubSearch(s, cleanQueryText, "username")
 		}
+		mu.Lock()
+		r.GithubResult = githubResult
+		mu.Unlock()
+		wg.Done()
+	}()
+
+	go func() {
+		if !q.GravatarRecon || !s.Settings.GravatarRecon || !isEmail {
+			mu.Lock()
+			r.GravatarResult = osint.GravatarResult{Inactive: true}
+			mu.Unlock()
+			wg.Done()
+			return
+		}
+		gravatarResult := osint.GravatarSearch(s, cleanQueryText)
+		mu.Lock()
+		r.GravatarResult = gravatarResult
 		mu.Unlock()
 		wg.Done()
 	}()
@@ -90,4 +120,27 @@ func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 func EncodeQueryID(q Query, dataleaksCount uint64) string {
 	raw, _ := json.Marshal(q)
 	return fmt.Sprintf("%d:%s", dataleaksCount, base64.URLEncoding.EncodeToString(raw))
+}
+
+func isValidEmail(email string) bool {
+	if !strings.Contains(email, "@") || !strings.Contains(email, ".") {
+		return false
+	}
+	if strings.HasPrefix(email, "@") || strings.HasSuffix(email, "@") {
+		return false
+	}
+	if strings.Contains(email, " ") {
+		return false
+	}
+	return true
+}
+
+func isValidUsername(username string) bool {
+	if len(username) < 1 || len(username) > 39 {
+		return false
+	}
+	if strings.Contains(username, " ") {
+		return false
+	}
+	return true
 }

@@ -15,13 +15,14 @@ type LeakResult struct {
 	Duration time.Duration
 	Rows     []map[string]string
 	Error    string
+	Inactive bool
 	LimitHit bool // Whether the search hit the limit
 }
 
 func Search(s *server.Server, queryText, column string, exactMatch bool) LeakResult {
 	if len(*(s.Dataleaks)) == 0 {
 		return LeakResult{
-			Error: "No dataleak configured",
+			Inactive: true,
 		}
 	}
 	now := time.Now()

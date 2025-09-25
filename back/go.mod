@@ -4,6 +4,7 @@ go 1.25.0
 
 require (
 	github.com/anotherhadi/github-recon v1.5.6
+	github.com/anotherhadi/gravatar-recon v1.0.1
 	github.com/charmbracelet/log v0.4.2
 	github.com/gin-gonic/gin v1.10.1
 	github.com/marcboeker/go-duckdb v1.8.5
@@ -49,7 +50,7 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/saran13raj/go-pixels v0.0.0-20250629121333-58b240a3ae51 // indirect
-	github.com/spf13/pflag v1.0.7 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect

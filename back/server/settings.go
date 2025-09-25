@@ -28,6 +28,7 @@ type ServerSettings struct {
 	GithubToken       string `json:"-"` // Github token for github-recon
 	GithubTokenLoaded bool
 	GithubDeepMode    bool // Deep mode for github-recon
+	GravatarRecon     bool // Activate gravatar-recon OSINT tool
 }
 
 func LoadServerSettings() ServerSettings {
@@ -49,6 +50,7 @@ func LoadServerSettings() ServerSettings {
 		GithubRecon:    getEnvBoolOrDefault("GITHUB_RECON", true),
 		GithubToken:    getEnvStringOrDefault("GITHUB_TOKEN", "null"),
 		GithubDeepMode: getEnvBoolOrDefault("GITHUB_DEEP_MODE", false),
+		GravatarRecon:  getEnvBoolOrDefault("GRAVATAR_RECON", true),
 	}
 
 	if ss.GithubToken == "null" || strings.TrimSpace(ss.GithubToken) == "" {

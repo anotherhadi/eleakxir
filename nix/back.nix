@@ -99,6 +99,11 @@ in {
         default = false;
         description = "Activate the github-recon deep mode";
       };
+      gravatarRecon = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Activate the gravatar-recon OSINT module";
+      };
     };
 
     config = lib.mkIf cfg.enable {
@@ -144,6 +149,11 @@ in {
             "GITHUB_TOKEN=${cfg.githubToken}"
             "GITHUB_DEEP_MODE=${
               if cfg.githubDeepMode
+              then "true"
+              else "false"
+            }"
+            "GRAVATAR_RECON=${
+              if cfg.gravatarRecon
               then "true"
               else "false"
             }"

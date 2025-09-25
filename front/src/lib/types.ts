@@ -1,4 +1,4 @@
-type Query = {
+export type Query = {
   Text: string;
   Column: string;
   ExactMatch: boolean;
@@ -6,33 +6,45 @@ type Query = {
   // Services
   Datawells: boolean;
   GithubRecon: boolean;
+  GravatarRecon: boolean;
 };
 
-type LeakResult = {
+export type LeakResult = {
   Duration: number;
   Error: string;
   Rows: Array<Record<string, string>>;
   LimitHit: boolean;
+  Inactive: boolean;
 };
 
-type GithubResult = {
+export type GithubResult = {
   Duration: number;
   Error: string;
+  Inactive: boolean;
 
   EmailResult: any;
   UsernameResult: any;
 };
 
-type Result = {
+export type GravatarResult = {
+  Duration: number;
+  Error: string;
+  Inactive: boolean;
+
+  Results: any;
+};
+
+export type Result = {
   Id: string;
   Status: "pending" | "completed";
   Date: string;
   Query: Query;
   LeakResult: LeakResult;
   GithubResult: GithubResult;
+  GravatarResult: GravatarResult;
 };
 
-type HistoryItem = {
+export type HistoryItem = {
   Id: string;
   Status: "pending" | "completed";
   Date: string;
@@ -40,9 +52,9 @@ type HistoryItem = {
   Results: number;
 };
 
-type History = HistoryItem[];
+export type History = HistoryItem[];
 
-type ServerSettings = {
+export type ServerSettings = {
   Folders: string[];
   CacheFolder: string;
   Limit: number;
@@ -51,9 +63,10 @@ type ServerSettings = {
   GithubRecon: boolean;
   GithubTokenLoaded: boolean;
   GithubDeepMode: boolean;
+  GravatarRecon: boolean;
 };
 
-type Server = {
+export type Server = {
   Settings: ServerSettings;
 
   Dataleaks: Dataleak[];
@@ -63,21 +76,9 @@ type Server = {
   TotalSize: number;
 };
 
-type Dataleak = {
+export type Dataleak = {
   Name: string;
   Columns: string[];
   Length: number;
   Size: number;
-};
-
-export type {
-  Query,
-  LeakResult,
-  History,
-  HistoryItem,
-  GithubResult,
-  Result,
-  ServerSettings,
-  Server,
-  Dataleak,
 };

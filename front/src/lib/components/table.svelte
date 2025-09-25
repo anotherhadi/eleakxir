@@ -27,7 +27,7 @@
           <tr>
             {#each Object.entries(item) as [key, value]}
               <th class="text-xs whitespace-nowrap font-semibold opacity-60">
-                {#if key.toLowerCase() === "url" && value !== "" && value !== null}
+                {#if ( key.toLowerCase() == "url" || key.toLowerCase().endsWith("_url")) && value !== null && value !== ""}
                   <a
                     href={value}
                     target="_blank"
@@ -48,7 +48,7 @@
     {:else}
       <tbody>
         {#each Object.entries(row) as [key, value]}
-          {#if key !== "source" && value !== "" && value !== null}
+          {#if key !== "source" && value !== null && value !== ""}
             <tr class="">
               <th
                 class="text-xs whitespace-nowrap font-semibold opacity-60 capitalize"
@@ -56,7 +56,7 @@
               >
 
               <td class="w-fit overflow-x-auto whitespace-nowrap">
-                {#if key.toLowerCase() === "url"}
+                {#if key.toLowerCase() == "url" || key.toLowerCase().endsWith("_url")}
                   <a
                     href={value}
                     target="_blank"

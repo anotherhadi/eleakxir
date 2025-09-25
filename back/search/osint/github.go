@@ -14,15 +14,13 @@ import (
 type GithubResult struct {
 	Duration time.Duration
 	Error    string
+	Inactive bool
 
 	UsernameResult *recon_username.UsernameResult
 	EmailResult    *recon_email.EmailResult
 }
 
-func Search(s *server.Server, queryText, column string) *GithubResult {
-	if !s.Settings.GithubRecon {
-		return nil
-	}
+func GithubSearch(s *server.Server, queryText, queryType string) GithubResult {
 	gr := GithubResult{}
 	now := time.Now()
 	settings := github_recon_settings.GetDefaultSettings()
@@ -35,56 +33,27 @@ func Search(s *server.Server, queryText, column string) *GithubResult {
 
 	queryText = strings.TrimSpace(queryText)
 
-	if column == "email" || strings.HasSuffix(column, "_email") ||
-		column == "username" || strings.HasSuffix(column, "_username") ||
-		column == "" || column == "all" {
-		if isValidEmail(queryText) {
-			settings.Target = queryText
-			settings.TargetType = github_recon_settings.TargetEmail
-			result := recon_email.Email(settings)
-			gr.EmailResult = &result
-		} else if isValidUsername(queryText) {
-			settings.Target = queryText
-			settings.TargetType = github_recon_settings.TargetUsername
-			result, err := recon_username.Username(settings)
-			if err != nil {
-				gr.Error = err.Error()
-			}
-			if result.User.Username == "" {
-				gr.UsernameResult = nil
-			} else {
-				gr.UsernameResult = &result
-			}
+	if queryType == "email" {
+		settings.Target = queryText
+		settings.TargetType = github_recon_settings.TargetEmail
+		result := recon_email.Email(settings)
+		gr.EmailResult = &result
+	} else if queryType == "username" {
+		settings.Target = queryText
+		settings.TargetType = github_recon_settings.TargetUsername
+		result, err := recon_username.Username(settings)
+		if err != nil {
+			gr.Error = err.Error()
+		}
+		if result.User.Username == "" {
+			gr.UsernameResult = nil
 		} else {
-			return nil
+			gr.UsernameResult = &result
 		}
 	} else {
-		return nil
+		return GithubResult{Inactive: true}
 	}
 
 	gr.Duration = time.Since(now)
-	return &gr
-}
-
-func isValidEmail(email string) bool {
-	if !strings.Contains(email, "@") || !strings.Contains(email, ".") {
-		return false
-	}
-	if strings.HasPrefix(email, "@") || strings.HasSuffix(email, "@") {
-		return false
-	}
-	if strings.Contains(email, " ") {
-		return false
-	}
-	return true
-}
-
-func isValidUsername(username string) bool {
-	if len(username) < 1 || len(username) > 39 {
-		return false
-	}
-	if strings.Contains(username, " ") {
-		return false
-	}
-	return true
+	return gr
 }
