@@ -226,13 +226,13 @@ func transformParquet(lu settings.LeakUtils, input, output Parquet, operations [
 		COPY (
 			SELECT %s 
 			FROM read_parquet('%s')
-			WHERE (%s) < %d
-			%s
+			WHERE (%s) < %d %s
 		) TO '%s' (FORMAT PARQUET, ROW_GROUP_SIZE 200_000 %s)
 	`, selectClause, input.Filepath, strings.Join(columnsLength, "+"), allowedRowSize, offset, output.Filepath, compression)
 
 	if printQuery {
-		fmt.Println("Query:", query) // TODO: Remove tabs
+		fmt.Println(settings.Base.Render("\nQuery:"))
+		fmt.Println(settings.Accent.Render(strings.ReplaceAll(strings.TrimSpace(query), "\t", "")))
 		return nil
 	}
 
