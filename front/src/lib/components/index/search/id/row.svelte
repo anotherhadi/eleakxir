@@ -63,19 +63,19 @@
       <div
         class="size-10 rounded-box bg-neutral items-center justify-center flex"
       >
-        <Key />
+        <Key class="text-neutral-content" />
       </div>
     {:else if row["email"] !== null}
       <div
         class="size-10 rounded-box bg-neutral items-center justify-center flex"
       >
-        <Mail />
+        <Mail class="text-neutral-content" />
       </div>
     {:else}
       <div
         class="size-10 rounded-box bg-neutral items-center justify-center flex"
       >
-        <Database />
+        <Database class="text-neutral-content" />
       </div>
     {/if}
   </div>

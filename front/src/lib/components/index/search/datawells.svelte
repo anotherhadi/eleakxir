@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Dataleak } from "$src/lib/types";
-  import { Replace, Search } from "@lucide/svelte";
+  import { Database, Replace, Search } from "@lucide/svelte";
 
   let {
     dataleaks,
@@ -42,6 +42,16 @@
     }
   });
 
+  function getDomain(dataleakName: string) {
+    const firstPart = dataleakName.split(" ")[0].toLowerCase();
+    const domainRegex =
+      /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/;
+    if (domainRegex.test(firstPart)) {
+      return firstPart;
+    }
+    return null;
+  }
+
   function previousPage() {
     if (page > 1) {
       page--;
@@ -66,6 +76,7 @@
       <!-- head -->
       <thead>
         <tr>
+          <th></th>
           <th>Name</th>
           <th>Number of rows</th>
           {#if showColumns}
@@ -77,6 +88,25 @@
         {#if paginatedDataleaks.length > 0}
           {#each paginatedDataleaks as item}
             <tr class="hover:bg-base-300">
+              <th>
+                <div>
+                  {#if getDomain(item.Name)}
+                    <img
+                      src="https://icons.duckduckgo.com/ip3/{getDomain(
+                        item.Name,
+                      )}.ico"
+                      class="size-8 rounded-xl bg-neutral"
+                      alt="Favicon de {getDomain(item.Name)}"
+                    />
+                  {:else}
+                    <div
+                      class="size-8 rounded-xl bg-neutral items-center justify-center flex"
+                    >
+                      <Database class="text-neutral-content" />
+                    </div>
+                  {/if}
+                </div>
+              </th>
               <th>
                 {item.Name}
               </th>
@@ -90,7 +120,7 @@
           {/each}
         {:else}
           <tr class="hover:bg-base-300">
-            <td colspan={3} class="text-center leading-9"
+            <td colspan={100} class="text-center leading-9"
               ><span class="text-3xl">(·.·)</span><br />No data wells found</td
             >
           </tr>

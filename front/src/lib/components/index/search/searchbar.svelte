@@ -43,7 +43,14 @@
     axios
       .post(
         `${$serverUrl}/search`,
-        { Text: query, Column: activeFilter, ExactMatch: exactMatch, Datawells: datawells, GithubRecon: githubRecon, GravatarRecon: gravatarRecon },
+        {
+          Text: query,
+          Column: activeFilter,
+          ExactMatch: exactMatch,
+          Datawells: datawells,
+          GithubRecon: githubRecon,
+          GravatarRecon: gravatarRecon,
+        },
         {
           headers: {
             "Content-Type": "application/json",
@@ -84,10 +91,13 @@
       {/each}
     </div>
 
-    <details class="dropdown dropdown-end">
-      <summary class="btn btn-square m-1"><Settings size={16} /></summary>
+    <div class="dropdown dropdown-end">
+      <div tabindex="0" role="button" class="btn m-1 btn-square btn-soft">
+        <Settings size={16} />
+      </div>
       <ul
-        class="menu dropdown-content bg-base-200 rounded-box z-1 w-52 p-2 shadow-sm"
+        tabindex="-1"
+        class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
       >
         <li>
           <label class="label">
@@ -97,18 +107,26 @@
         </li>
         <li>
           <label class="label">
-            <input type="checkbox" bind:checked={githubRecon} class="checkbox" />
+            <input
+              type="checkbox"
+              bind:checked={githubRecon}
+              class="checkbox"
+            />
             Github Recon
           </label>
         </li>
         <li>
           <label class="label">
-            <input type="checkbox" bind:checked={gravatarRecon} class="checkbox" />
+            <input
+              type="checkbox"
+              bind:checked={gravatarRecon}
+              class="checkbox"
+            />
             Gravatar Recon
           </label>
         </li>
       </ul>
-    </details>
+    </div>
   </div>
 
   <form
