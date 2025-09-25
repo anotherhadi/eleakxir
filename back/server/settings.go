@@ -42,7 +42,7 @@ func LoadServerSettings() ServerSettings {
 		Folders:                 getEnvStringListOrDefault("DATALEAKS_FOLDERS", []string{}),
 		CacheFolder:             getEnvStringOrDefault("DATALEAKS_CACHE_FOLDER", ""),
 		BaseColumns:             getEnvStringListOrDefault("BASE_COLUMNS", []string{"email", "username", "password", "full_name", "phone", "url"}),
-		Limit:                   getEnvIntOrDefault("LIMIT", 100),
+		Limit:                   getEnvIntOrDefault("LIMIT", 200),
 		ReloadDataleaksInterval: getEnvDurationOrDefault("RELOAD_DATALEAKS_INTERVAL", 20*time.Minute),
 
 		// OSINT Tools
