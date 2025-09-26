@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Table from "$src/lib/components/table.svelte";
+  import Table from "$src/lib/components/table.svelte";
   import { ChevronDown, ChevronUp, Database, Key, Mail } from "@lucide/svelte";
 
   const { row }: { row: Record<string, string> } = $props();
@@ -7,6 +7,7 @@
   let isOpen = $state<boolean>(false);
 
   function getDomain(dataleakName: string) {
+    if (!dataleakName) return null;
     const firstPart = dataleakName.split(" ")[0].toLowerCase();
     const domainRegex =
       /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/;
@@ -79,8 +80,12 @@
       </div>
     {/if}
   </div>
-  <div>
-    <div>{getHighlightedContent(row)}</div>
+  <div
+    class="flex-1 flex flex-col min-w-0 items-start justify-center"
+  >
+    <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
+      {getHighlightedContent(row)}
+    </div>
     <div class="text-xs uppercase font-semibold opacity-60">
       {row["source"]}
     </div>
@@ -94,7 +99,7 @@
   </div>
 </button>
 {#if isOpen}
-  <li class="list-row flex bg-base-200 rounded-t-none mb-2">
+  <li class="grid list-row bg-base-200 rounded-t-none mb-2">
     <Table {row} />
   </li>
 {/if}
