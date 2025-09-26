@@ -89,7 +89,7 @@
           {#each paginatedDataleaks as item}
             <tr class="hover:bg-base-300">
               <th>
-                <div>
+                <div class="size-8">
                   {#if getDomain(item.Name)}
                     <img
                       src="https://icons.duckduckgo.com/ip3/{getDomain(
