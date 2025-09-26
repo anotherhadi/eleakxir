@@ -21,20 +21,27 @@ export function convertNanoSeconds(nanoseconds: number): string {
   const ONE_MS_IN_NS = 1e6;
   const ONE_S_IN_NS = 1e9;
   const ONE_MIN_IN_NS = 6e10;
+  const ONE_HOUR_IN_NS = 3.6e12;
 
   if (nanoseconds < ONE_MS_IN_NS) {
-    return `${nanoseconds} ns`; // Garde la sortie en ns pour les très petites valeurs
+    return `${nanoseconds} ns`;
   } else if (nanoseconds < ONE_S_IN_NS) {
     const ms = Math.round(nanoseconds / ONE_MS_IN_NS);
     return `${ms} ms`;
   } else if (nanoseconds < ONE_MIN_IN_NS) {
     const s = Math.round(nanoseconds / ONE_S_IN_NS);
     return `${s} s`;
-  } else {
+  } else if (nanoseconds < ONE_HOUR_IN_NS) {
     const totalSeconds = Math.round(nanoseconds / ONE_S_IN_NS);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     return `${minutes}m${seconds}s`;
+  } else {
+    const totalMinutes = Math.round(nanoseconds / ONE_MIN_IN_NS);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    return `${hours}h${minutes}m`;
   }
 }
 
