@@ -27,7 +27,7 @@ type Query struct {
 type Result struct {
 	Id     string
 	Date   time.Time
-	Status string // "pending", "completed"
+	Status string // "queued", "pending", "completed"
 	Query  Query
 
 	LeakResult     dataleak.LeakResult
@@ -39,9 +39,7 @@ func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 	var wg sync.WaitGroup
 
 	mu.Lock()
-	r.Date = time.Now()
 	r.Status = "pending"
-	r.Query = q
 	mu.Unlock()
 
 	wg.Add(3)

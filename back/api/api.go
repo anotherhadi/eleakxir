@@ -10,7 +10,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func routes(s *server.Server, cache *map[string]*search.Result) {
+func searchWorker(s *server.Server, cache *map[string]*search.Result, searchQueue chan string) {
+	for id := range searchQueue {
+		s.Mu.RLock()
+		r, exists := (*cache)[id]
+		s.Mu.RUnlock()
+
+		if !exists {
+			continue
+		}
+
+		search.Search(s, r.Query, r, s.Mu)
+	}
+}
+
+func routes(s *server.Server, cache *map[string]*search.Result, searchQueue chan string) {
 	s.Router.Use(
 		func(c *gin.Context) {
 			if s.Settings.Password != "" {
@@ -45,12 +59,16 @@ func routes(s *server.Server, cache *map[string]*search.Result) {
 		var history []historyItem
 		s.Mu.RLock()
 		for _, r := range *cache {
+			resultsCount := 0
+			if r.LeakResult.Rows != nil {
+				resultsCount = len(r.LeakResult.Rows)
+			}
 			history = append(history, historyItem{
 				Id:      r.Id,
 				Status:  r.Status,
 				Date:    r.Date,
 				Query:   r.Query,
-				Results: len(r.LeakResult.Rows),
+				Results: resultsCount,
 			})
 		}
 		s.Mu.RUnlock()
@@ -86,12 +104,18 @@ func routes(s *server.Server, cache *map[string]*search.Result) {
 			return
 		}
 		r := search.Result{
-			Id: id,
+			Id:     id,
+			Date:   time.Now(),
+			Status: "queued",
+			Query:  query,
 		}
-		go search.Search(s, query, &r, s.Mu)
+
 		s.Mu.Lock()
 		(*cache)[id] = &r
 		s.Mu.Unlock()
+
+		searchQueue <- id
+
 		c.JSON(http.StatusOK, gin.H{"Id": id})
 	})
 
@@ -117,6 +141,7 @@ func Init(s *server.Server) {
 	s.Router.Use(CORSMiddleware())
 
 	cache := make(map[string]*search.Result)
+	searchQueue := make(chan string, 100)
 
 	go func() {
 		for {
@@ -125,7 +150,9 @@ func Init(s *server.Server) {
 		}
 	}()
 
-	routes(s, &cache)
+	go searchWorker(s, &cache, searchQueue)
+
+	routes(s, &cache, searchQueue)
 }
 
 func deleteOldCache(s *server.Server, cache *map[string]*search.Result) {

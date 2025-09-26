@@ -36,7 +36,7 @@ export type GravatarResult = {
 
 export type Result = {
   Id: string;
-  Status: "pending" | "completed";
+  Status: "queued" | "pending" | "completed";
   Date: string;
   Query: Query;
   LeakResult: LeakResult;
@@ -46,7 +46,7 @@ export type Result = {
 
 export type HistoryItem = {
   Id: string;
-  Status: "pending" | "completed";
+  Status: "queued" | "pending" | "completed";
   Date: string;
   Query: Query;
   Results: number;

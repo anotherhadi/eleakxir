@@ -88,6 +88,7 @@
                   class="badge badge-xs"
                   class:badge-success={item.Status === "completed"}
                   class:badge-warning={item.Status === "pending"}
+                  class:badge-neutral={item.Status === "queued"}
                 >
                   {item.Status}
                 </div></td
