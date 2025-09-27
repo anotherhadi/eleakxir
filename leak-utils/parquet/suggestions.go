@@ -75,6 +75,7 @@ var (
 		"numero":          "phone",
 		"numerotelephone": "phone",
 		"numeromobile":    "phone",
+		"mobilephone":     "phone",
 		"mobile":          "phone",
 	}
 )
