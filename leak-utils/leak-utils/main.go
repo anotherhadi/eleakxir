@@ -60,7 +60,6 @@ func main() {
 		var debug *bool = flag.Bool("debug", false, "Debug mode")
 		var noColors *bool = flag.Bool("no-colors", false, "Remove all colors")
 		var printQuery *bool = flag.BoolP("print-query", "p", false, "Print the query instead of executing it")
-		var forceHeader *bool = flag.BoolP("force-header", "f", false, "If there is an header (bypass detection)")
 		flag.Parse()
 		if *inputFile == "" || *outputFile == "" {
 			log.Fatal("Input and output files are required")
@@ -70,7 +69,7 @@ func main() {
 		}
 		lu.Compression = *compression
 		lu.Debug = *debug
-		err := parquet.CleanParquet(lu, *inputFile, *outputFile, *skipLineFormating, *deleteFirstRow, *printQuery, *forceHeader)
+		err := parquet.CleanParquet(lu, *inputFile, *outputFile, *skipLineFormating, *deleteFirstRow, *printQuery)
 		if err != nil {
 			log.Fatal("Failed to clean Parquet file", "error", err)
 		}
@@ -114,6 +113,7 @@ func main() {
 		var compression *string = flag.StringP("compression", "c", "ZSTD", "Compression codec (UNCOMPRESSED, SNAPPY, GZIP, BROTLI, LZ4, ZSTD)")
 		var noColors *bool = flag.Bool("no-colors", false, "Remove all colors")
 		var debug *bool = flag.Bool("debug", false, "Debug mode")
+		var forceHeader *bool = flag.BoolP("force-header", "f", false, "If there is an header (bypass detection)")
 		flag.Parse()
 		if *inputFile == "" || *outputFile == "" {
 			log.Fatal("Input and output files are required")
@@ -123,7 +123,7 @@ func main() {
 		}
 		lu.Compression = *compression
 		lu.Debug = *debug
-		err := misc.CsvToParquet(lu, *inputFile, *outputFile, *strict)
+		err := misc.CsvToParquet(lu, *inputFile, *outputFile, *strict, *forceHeader)
 		if err != nil {
 			log.Fatal("Failed to transform Csv file", "error", err)
 		}
