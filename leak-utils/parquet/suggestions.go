@@ -42,6 +42,7 @@ var (
 		"login":           "username",
 		"description":     "bio",
 		"sex":             "gender",
+		"sexe":            "gender",
 		"civilite":        "gender",
 		"genre":           "gender",
 		"ipaddress":       "ip",
