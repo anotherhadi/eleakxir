@@ -17,14 +17,27 @@ func flattenJSON(prefix string, in map[string]any, out map[string]any) {
 		if prefix != "" {
 			key = prefix + "." + k
 		}
+
 		switch child := v.(type) {
 		case map[string]any:
 			flattenJSON(key, child, out)
 		case []any:
-			for i, item := range child {
-				tempMap := make(map[string]any)
-				tempMap[fmt.Sprintf("%d", i)] = item
-				flattenJSON(key, tempMap, out)
+			if len(child) == 0 {
+				out[key] = ""
+			} else {
+				for i, item := range child {
+					tempMap := make(map[string]any)
+					subKey := fmt.Sprintf("%d", i)
+
+					if obj, ok := item.(map[string]any); ok {
+						flattenJSON(key+"."+subKey, obj, out)
+					} else if arr, ok := item.([]any); ok {
+						tempMap[subKey] = arr
+						flattenJSON(key, tempMap, out)
+					} else {
+						out[key+"."+subKey] = fmt.Sprintf("%v", item)
+					}
+				}
 			}
 		default:
 			out[key] = fmt.Sprintf("%v", child)
