@@ -3,6 +3,7 @@ package misc
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -23,23 +24,31 @@ func deleteXFirstLines(lu settings.LeakUtils, inputFile, outputFile string, x in
 	}
 	defer out.Close()
 
-	scanner := bufio.NewScanner(in)
+	reader := bufio.NewReader(in)
 	writer := bufio.NewWriter(out)
 	defer writer.Flush()
 
 	lineNum := 0
-	for scanner.Scan() {
-		lineNum++
-		if lineNum <= x {
-			continue
-		}
-		_, err := writer.WriteString(scanner.Text() + "\n")
-		if err != nil {
+	for {
+		line, err := reader.ReadString('\n')
+
+		if err != nil && err != io.EOF {
 			return err
+		}
+
+		lineNum++
+		if lineNum > x {
+			if _, writeErr := writer.WriteString(line); writeErr != nil {
+				return writeErr
+			}
+		}
+
+		if err == io.EOF {
+			break
 		}
 	}
 
-	return scanner.Err()
+	return nil
 }
 
 // Delete the last X lines of a file
@@ -51,12 +60,22 @@ func deleteXLastLines(lu settings.LeakUtils, inputFile, outputFile string, x int
 	defer in.Close()
 
 	lines := []string{}
-	scanner := bufio.NewScanner(in)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+	reader := bufio.NewReader(in)
+
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			return err
+		}
+
+		lines = append(lines, strings.TrimSuffix(line, "\n"))
+
+		if err == io.EOF {
+			break
+		}
 	}
-	if err := scanner.Err(); err != nil {
-		return err
+	if len(lines) > 0 && lines[len(lines)-1] == "" {
+		lines = lines[:len(lines)-1]
 	}
 
 	if x > len(lines) {
@@ -89,18 +108,29 @@ func printFirstXLines(lu settings.LeakUtils, inputFile string, x int) error {
 	}
 	defer in.Close()
 
-	scanner := bufio.NewScanner(in)
+	reader := bufio.NewReader(in)
+
 	lineNum := 0
-	for scanner.Scan() && lineNum < x {
+	for lineNum < x {
+		line, err := reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			return err
+		}
+
 		lineNum++
-		text := scanner.Text()
+		text := strings.TrimSuffix(line, "\n")
+
 		if len(text) > 100 {
 			text = text[:100] + "..."
 		}
 		fmt.Println(settings.Muted.Render(fmt.Sprintf("%d: %s", lineNum, text)))
+
+		if err == io.EOF {
+			break
+		}
 	}
 
-	return scanner.Err()
+	return nil
 }
 
 // Print the last X lines of a file with index starting from 1 from the bottom
@@ -112,15 +142,24 @@ func printLastXLines(lu settings.LeakUtils, inputFile string, x int) error {
 	defer in.Close()
 
 	lines := []string{}
-	scanner := bufio.NewScanner(in)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+	reader := bufio.NewReader(in)
+
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			return err
+		}
+
+		lines = append(lines, strings.TrimSuffix(line, "\n"))
+
+		if err == io.EOF {
+			break
+		}
 	}
-	if err := scanner.Err(); err != nil {
-		return err
+	if len(lines) > 0 && lines[len(lines)-1] == "" {
+		lines = lines[:len(lines)-1]
 	}
 
-	// Si x est supérieur au nombre de lignes, on affiche tout
 	if x > len(lines) {
 		x = len(lines)
 	}
@@ -128,9 +167,7 @@ func printLastXLines(lu settings.LeakUtils, inputFile string, x int) error {
 	start := len(lines) - x
 	subLines := lines[start:]
 
-	// Affiche les lignes avec 1 en bas
 	for i := 0; i < len(subLines); i++ {
-		// index = nombre total de lignes affichées - position dans le slice
 		index := len(subLines) - i
 		text := subLines[i]
 		if len(text) > 100 {
