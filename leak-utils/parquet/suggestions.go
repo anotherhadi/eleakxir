@@ -58,6 +58,7 @@ var (
 		"pays":            "country",
 		"courriel":        "email",
 		"mail":            "email",
+		"email":           "email",
 		"zip":             "postal_code",
 		"postalcode":      "postal_code",
 		"zipcode":         "postal_code",
