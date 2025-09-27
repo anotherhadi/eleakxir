@@ -189,16 +189,26 @@ func configureColumns(input Parquet, skipLineFormating bool) []ColumnOperation {
 
 func transformParquet(lu settings.LeakUtils, input, output Parquet, operations []ColumnOperation, deleteFirstRow, printQuery bool) error {
 	var selectClauses []string
+	var columnsLength []string
 	hasColumns := false
 
 	for _, op := range operations {
+		escapedOriginalName := escapeColumnName(op.OriginalName)
+
 		if op.Action != "drop" {
 			hasColumns = true
+
+			originalSelectName := op.OriginalName
 			if op.Action == "rename" {
-				selectClauses = append(selectClauses, fmt.Sprintf("%s AS \"%s\"", op.OriginalName, op.NewName))
+				originalSelectName = op.OriginalName
+				selectClauses = append(selectClauses, fmt.Sprintf("%s AS \"%s\"", originalSelectName, op.NewName))
 			} else {
-				selectClauses = append(selectClauses, op.OriginalName)
+				selectClauses = append(selectClauses, originalSelectName)
 			}
+
+			columnsLength = append(columnsLength, fmt.Sprintf("COALESCE(LENGTH(\"%s\"),0)", escapedOriginalName))
+		} else {
+			columnsLength = append(columnsLength, fmt.Sprintf("COALESCE(LENGTH(\"%s\"),0)", escapedOriginalName))
 		}
 	}
 
@@ -212,10 +222,6 @@ func transformParquet(lu settings.LeakUtils, input, output Parquet, operations [
 		compression = ", COMPRESSION '" + output.Compression + "'"
 	}
 
-	columnsLength := []string{}
-	for _, col := range input.Columns {
-		columnsLength = append(columnsLength, "COALESCE(LENGTH(\""+col+"\"),0)")
-	}
 	allowedRowSize := 30 * len(input.Columns)
 	offset := ""
 	if deleteFirstRow {
@@ -224,7 +230,7 @@ func transformParquet(lu settings.LeakUtils, input, output Parquet, operations [
 
 	query := fmt.Sprintf(`
 		COPY (
-			SELECT %s 
+			SELECT %s 
 			FROM read_parquet('%s')
 			WHERE (%s) < %d %s
 		) TO '%s' (FORMAT PARQUET, ROW_GROUP_SIZE 200_000 %s)
@@ -277,4 +283,8 @@ func GetParquet(db *sql.DB, inputFile string) (parquet *Parquet, err error) {
 	}
 
 	return
+}
+
+func escapeColumnName(name string) string {
+	return strings.ReplaceAll(name, "\"", "\"\"")
 }
