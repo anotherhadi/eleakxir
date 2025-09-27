@@ -47,7 +47,7 @@
     const domainRegex =
       /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/;
     if (domainRegex.test(firstPart)) {
-      return firstPart;
+      return firstPart.replace("_", "-");
     }
     return null;
   }
