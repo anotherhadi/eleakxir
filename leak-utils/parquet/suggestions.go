@@ -38,6 +38,7 @@ var (
 
 	suggestions = map[string]string{
 		"user":            "username",
+		"pseudo":          "username",
 		"login":           "username",
 		"description":     "bio",
 		"sex":             "gender",
@@ -64,10 +65,12 @@ var (
 		"hashedpassword":  "password_hash",
 		"hashpassword":    "password_hash",
 		"passwordhashed":  "password_hash",
+		"passwd":          "password",
 		"birthdate":       "birth_date",
 		"dob":             "birth_date",
 		"dateofbirth":     "birth_date",
 		"datenaissance":   "birth_date",
+		"birthday":        "birth_date",
 		"datecreation":    "creation_date",
 		"datedecreation":  "creation_date",
 		"createdat":       "creation_date",
