@@ -93,7 +93,11 @@ func printFirstXLines(lu settings.LeakUtils, inputFile string, x int) error {
 	lineNum := 0
 	for scanner.Scan() && lineNum < x {
 		lineNum++
-		fmt.Println(settings.Muted.Render(fmt.Sprintf("%d: %s", lineNum, scanner.Text())))
+		text := scanner.Text()
+		if len(text) > 100 {
+			text = text[:100] + "..."
+		}
+		fmt.Println(settings.Muted.Render(fmt.Sprintf("%d: %s", lineNum, text)))
 	}
 
 	return scanner.Err()
@@ -128,7 +132,11 @@ func printLastXLines(lu settings.LeakUtils, inputFile string, x int) error {
 	for i := 0; i < len(subLines); i++ {
 		// index = nombre total de lignes affichées - position dans le slice
 		index := len(subLines) - i
-		fmt.Println(settings.Muted.Render(fmt.Sprintf("%d: %s", index, subLines[i])))
+		text := subLines[i]
+		if len(text) > 100 {
+			text = text[:100] + "..."
+		}
+		fmt.Println(settings.Muted.Render(fmt.Sprintf("%d: %s", index, text)))
 	}
 
 	return nil
