@@ -16,7 +16,10 @@
       </thead>
       <tbody>
         <tr class="hover:bg-base-300">
-          <th> Data wells lookup </th>
+          <th class="flex flex-wrap gap-2 items-center">
+            Data wells lookup
+            <div class="badge badge-xs badge-neutral">Limit: {serverInfo.Settings.Limit}</div>
+          </th>
           <td>
             {#if serverInfo.Dataleaks.length !== 0}
               <div class="inline-grid *:[grid-area:1/1] mr-2">
@@ -34,7 +37,7 @@
           </td>
         </tr>
         <tr class="hover:bg-base-300">
-        <th class="flex flex-wrap gap-2 items-center">
+          <th class="flex flex-wrap gap-2 items-center">
             Github recon
             {#if serverInfo.Settings.GithubTokenLoaded === true}
               <div class="badge badge-xs badge-neutral">Token</div>
