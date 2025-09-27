@@ -13,7 +13,7 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-func CsvToParquet(lu settings.LeakUtils, inputFile string, outputFile string, strict bool) error {
+func CsvToParquet(lu settings.LeakUtils, inputFile string, outputFile string, strict, forceHeader bool) error {
 	delimiter := getDelimiter(inputFile)
 
 	hasHeader, err := csvHasHeader(inputFile, delimiter)
@@ -21,7 +21,7 @@ func CsvToParquet(lu settings.LeakUtils, inputFile string, outputFile string, st
 		return err
 	}
 	header := "true"
-	if !hasHeader {
+	if !hasHeader && !forceHeader {
 		header = "false"
 	}
 	strictMode := "true"

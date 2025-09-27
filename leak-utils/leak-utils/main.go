@@ -27,6 +27,7 @@ func main() {
 	actions := []string{
 		"cleanParquet",
 		"infoParquet",
+		"present",
 		// Csv
 		"csvToParquet",
 		// JSON
@@ -59,6 +60,7 @@ func main() {
 		var debug *bool = flag.Bool("debug", false, "Debug mode")
 		var noColors *bool = flag.Bool("no-colors", false, "Remove all colors")
 		var printQuery *bool = flag.BoolP("print-query", "p", false, "Print the query instead of executing it")
+		var forceHeader *bool = flag.BoolP("force-header", "f", false, "If there is an header (bypass detection)")
 		flag.Parse()
 		if *inputFile == "" || *outputFile == "" {
 			log.Fatal("Input and output files are required")
@@ -68,9 +70,24 @@ func main() {
 		}
 		lu.Compression = *compression
 		lu.Debug = *debug
-		err := parquet.CleanParquet(lu, *inputFile, *outputFile, *skipLineFormating, *deleteFirstRow, *printQuery)
+		err := parquet.CleanParquet(lu, *inputFile, *outputFile, *skipLineFormating, *deleteFirstRow, *printQuery, *forceHeader)
 		if err != nil {
 			log.Fatal("Failed to clean Parquet file", "error", err)
+		}
+		return
+	case "present":
+		var inputFolder *string = flag.StringP("input", "i", "", "Input folder")
+		var noColors *bool = flag.Bool("no-colors", false, "Remove all colors")
+		flag.Parse()
+		if *inputFolder == "" {
+			log.Fatal("Input and output files are required")
+		}
+		if *noColors {
+			settings.DisableColors()
+		}
+		err := parquet.Present(*inputFolder)
+		if err != nil {
+			log.Fatal("Failed to present Parquet file", "error", err)
 		}
 		return
 	case "infoParquet":
