@@ -40,7 +40,11 @@ func flattenJSON(prefix string, in map[string]any, out map[string]any) {
 				}
 			}
 		default:
-			out[key] = fmt.Sprintf("%v", child)
+			if child == nil {
+				out[key] = ""
+			} else {
+				out[key] = fmt.Sprintf("%v", child)
+			}
 		}
 	}
 }
