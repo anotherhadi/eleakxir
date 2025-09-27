@@ -117,6 +117,11 @@ func JsonToParquet(lu settings.LeakUtils, inputFile string, outputFile string) e
 
 	query := fmt.Sprintf(`COPY (FROM read_json('%s', union_by_name=true)) TO '%s' (FORMAT 'parquet', COMPRESSION '%s', ROW_GROUP_SIZE 200000);`, tmpFile, outputFile, lu.Compression)
 
+	if lu.Debug {
+		fmt.Println(settings.Base.Render("\nQuery:"))
+		fmt.Println(settings.Accent.Render(strings.ReplaceAll(strings.TrimSpace(query), "\t", "")))
+	}
+
 	_, err = lu.Db.Exec(query)
 	if err != nil {
 		return fmt.Errorf("duckdb copy error: %w", err)
