@@ -241,6 +241,10 @@ func transformParquet(lu settings.LeakUtils, input, output Parquet, operations [
 		fmt.Println(settings.Accent.Render(strings.ReplaceAll(strings.TrimSpace(query), "\t", "")))
 		return nil
 	}
+	if lu.Debug {
+		fmt.Println(settings.Base.Render("\nQuery:"))
+		fmt.Println(settings.Accent.Render(strings.ReplaceAll(strings.TrimSpace(query), "\t", "")))
+	}
 
 	fmt.Println(settings.Base.Render("\nTransforming and writing to output parquet..."))
 	_, err := lu.Db.Exec(query)
