@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func searchWorker(s *server.Server, cache *map[string]*search.Result, searchQueue chan string) {
+func searchWorker(s *server.Server, cache *map[string]*search.Result, searchQueue chan string, limiter chan struct{}) {
 	for id := range searchQueue {
 		s.Mu.RLock()
 		r, exists := (*cache)[id]
@@ -20,7 +20,9 @@ func searchWorker(s *server.Server, cache *map[string]*search.Result, searchQueu
 			continue
 		}
 
+		limiter <- struct{}{}
 		search.Search(s, r.Query, r, s.Mu)
+		<-limiter
 	}
 }
 
@@ -142,6 +144,7 @@ func Init(s *server.Server) {
 
 	cache := make(map[string]*search.Result)
 	searchQueue := make(chan string, 100)
+	searchLimiter := make(chan struct{}, 1)
 
 	go func() {
 		for {
@@ -150,7 +153,7 @@ func Init(s *server.Server) {
 		}
 	}()
 
-	go searchWorker(s, &cache, searchQueue)
+	go searchWorker(s, &cache, searchQueue, searchLimiter)
 
 	routes(s, &cache, searchQueue)
 }
