@@ -42,14 +42,14 @@ organization using it.
 - **Separators**:
   - `_` inside blocks (`date_2023_10`)
   - `-` between blocks (`instagram.com-date_2023_10`)
-- **Prefix**: always start with the **source name/url** (e.g., `instagram.com`,
-  `alien_txt`).
+- **Prefix**: always start with the **source name or url** (e.g., `instagram.com`,
+  `alien_txt`). (for url, replace all `-` by `_`)
 - **Blocks**: each additional part must be prefixed by its block name:
-
   - `date_YYYY[_MM[_DD]]` → use ISO format (year, or year-month, or full date).
   - `source_*` → origin of the leak (e.g., `scrape`, `dump`, `combo`).
   - `version_v*` → versioning if regenerated or transformed.
   - `notes_*` → optional clarifications.
+
 - **Extension**: always `.parquet`.
 
 **Recommended pattern:**
@@ -68,14 +68,13 @@ combo_french-notes_crypto.parquet
 
 ## Column Naming Convention
 
-- **snake\_case only** (lowercase, `_` separator).
+- **snake_case only** (lowercase, `_` separator).
 
 - **No dots (`.`)** in column names (`husband.phone` → `husband_phone`).
 
 - **Allowed characters**: `[a-z0-9_]+` (no spaces, hyphens, or accents).
 
 - **Multiple variants of the same field**:
-
   - Relations → prefix clearly: `husband_phone`, `mother_last_name`.
   - Multiples of the same type → numbered prefix: `1_phone`, `2_phone`,
     `3_phone`.
@@ -118,13 +117,11 @@ combo_french-notes_crypto.parquet
 - **Phone**: keep only `[^0-9]`
 
 - **Names**:
-
   - Keep `first_name` / `last_name` if present.
   - Generate `full_name = CONCAT(first_name, ' ', last_name)`.
   - If only `name` exists, rename it to `full_name`.
 
 - **Passwords**:
-
   - Hashes → `password_hash`.
   - Plaintext → `password`.
   - Never mix hashes and plaintext in the same column.
