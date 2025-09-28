@@ -105,14 +105,20 @@ func FormatParquetName(path string) string {
 		}
 	}
 
-	sourceName = strings.ReplaceAll(sourceName, "_", " ")
-	sourceWords := strings.Fields(sourceName)
-	for i, word := range sourceWords {
-		if len(word) > 0 {
-			sourceWords[i] = strings.ToUpper(string(word[0])) + word[1:]
+	formattedSourceName := ""
+	if strings.Contains(sourceName, ".") { // If it's an URL
+		sourceName = strings.ReplaceAll(sourceName, "_", "-")
+		formattedSourceName = sourceName
+	} else { // Else
+		sourceName = strings.ReplaceAll(sourceName, "_", " ")
+		sourceWords := strings.Fields(sourceName)
+		for i, word := range sourceWords {
+			if len(word) > 0 {
+				sourceWords[i] = strings.ToUpper(string(word[0])) + word[1:]
+			}
 		}
+		formattedSourceName = strings.Join(sourceWords, " ")
 	}
-	formattedSourceName := strings.Join(sourceWords, " ")
 
 	if len(blocks) > 0 {
 		return fmt.Sprintf("%s (%s)", formattedSourceName, strings.Join(blocks, ", "))
