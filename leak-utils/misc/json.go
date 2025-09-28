@@ -115,7 +115,7 @@ func JsonToParquet(lu settings.LeakUtils, inputFile string, outputFile string) e
 	err := flattenJSONFile(inputFile, tmpFile)
 	defer os.Remove(tmpFile)
 
-	query := fmt.Sprintf(`COPY (FROM read_json('%s', union_by_name=true)) TO '%s' (FORMAT 'parquet', COMPRESSION '%s', ROW_GROUP_SIZE 200000);`, tmpFile, outputFile, lu.Compression)
+	query := fmt.Sprintf(`COPY (FROM read_json('%s', union_by_name=true, ignore_errors=true) TO '%s' (FORMAT 'parquet', COMPRESSION '%s', ROW_GROUP_SIZE 200000);`, tmpFile, outputFile, lu.Compression)
 
 	if lu.Debug {
 		fmt.Println(settings.Base.Render("\nQuery:"))

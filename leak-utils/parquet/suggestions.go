@@ -50,6 +50,7 @@ var (
 		"prenom":          "first_name",
 		"lastname":        "last_name",
 		"nom":             "last_name",
+		"familyname":      "last_name",
 		"fullname":        "full_name",
 		"nomcomplet":      "full_name",
 		"adresse":         "address",
