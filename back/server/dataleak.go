@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/charmbracelet/log"
 )
@@ -15,11 +16,10 @@ type Dataleak struct {
 	Columns []string
 	Length  uint64
 	Size    uint64
+	ModTime time.Time
 }
 
 const CACHE_FILENAME = "dataleaks_cache.json"
-
-// TODO: check os.FileInfo.ModTime() to see if the file has changed since last cache update
 
 func Cache(s *Server) error {
 	if len(s.Settings.Folders) == 0 {
@@ -44,37 +44,41 @@ func Cache(s *Server) error {
 		log.Warn("Failed to read dataleaks cache file", "error", err)
 	}
 
-	// Filter out non-existent files
+	dataleakMap := make(map[string]Dataleak, len(dataleaks))
+	for _, d := range dataleaks {
+		dataleakMap[d.Path] = d
+	}
+
 	filteredDataleaks := []Dataleak{}
 	writeOutput := false
-	for _, d := range dataleaks {
-		if _, err := os.Stat(d.Path); err == nil {
-			filteredDataleaks = append(filteredDataleaks, d)
-		} else if os.IsNotExist(err) {
-			log.Info("Removing non-existent file from cache", "path", d.Path)
-			writeOutput = true
-		} else {
-			log.Error("Error checking file existence", "path", d.Path, "error", err)
-		}
-	}
-	dataleaks = filteredDataleaks
-
-	// Create a map for quick lookups
-	dataleakMap := make(map[string]struct{}, len(dataleaks))
-	for _, d := range dataleaks {
-		dataleakMap[d.Path] = struct{}{}
-	}
-
-	// Add new files
 	parquetFiles := getAllParquetFiles(s.Settings.Folders)
-	for _, p := range parquetFiles {
-		if _, found := dataleakMap[p]; found {
-			continue
-		}
 
-		writeOutput = true
-		dataleaks = append(dataleaks, getDataleak(*s, p))
+	for _, p := range parquetFiles {
+		currentModTime := getModTime(p)
+		cachedDataleak, found := dataleakMap[p]
+
+		if found {
+			if currentModTime.Equal(cachedDataleak.ModTime) {
+				filteredDataleaks = append(filteredDataleaks, cachedDataleak)
+			} else {
+				log.Info("File modification time changed, re-caching dataleak", "path", p)
+				writeOutput = true
+				filteredDataleaks = append(filteredDataleaks, getDataleak(*s, p))
+			}
+			delete(dataleakMap, p)
+		} else {
+			log.Info("Found new dataleak file, caching", "path", p)
+			writeOutput = true
+			filteredDataleaks = append(filteredDataleaks, getDataleak(*s, p))
+		}
 	}
+
+	for path := range dataleakMap {
+		log.Info("Removing non-existent file from cache", "path", path)
+		writeOutput = true
+	}
+
+	dataleaks = filteredDataleaks
 
 	if writeOutput {
 		data, err := json.MarshalIndent(dataleaks, "", "  ")
@@ -107,5 +111,6 @@ func getDataleak(s Server, path string) Dataleak {
 		Columns: getParquetColumns(s, path),
 		Length:  getParquetLength(s, path),
 		Size:    getFileSize(path),
+		ModTime: getModTime(path),
 	}
 }

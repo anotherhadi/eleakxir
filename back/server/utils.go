@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 func getParquetColumns(s Server, path string) []string {
@@ -80,6 +81,14 @@ func getFileSize(path string) uint64 {
 		return 0
 	}
 	return uint64(info.Size() / (1024 * 1024)) // MB
+}
+
+func getModTime(path string) time.Time {
+	info, err := os.Stat(path)
+	if err != nil {
+		return time.Time{}
+	}
+	return info.ModTime()
 }
 
 func FormatParquetName(path string) string {
