@@ -99,12 +99,12 @@
                       : ""}
                 />
               </th>
-              <th>
+              <th class="text-nowrap">
                 {item.Name}
               </th>
               <td>{item.Length.toLocaleString("fr")}</td>
               {#if showColumns}
-                <td class="capitalize">
+                <td class="capitalize text-nowrap">
                   {item.Columns.map((col) => col.replace(/_/g, " ")).join(", ")}
                 </td>
               {/if}

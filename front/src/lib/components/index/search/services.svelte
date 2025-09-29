@@ -20,7 +20,7 @@
             Data wells lookup
             <div class="badge badge-xs badge-neutral">Limit: {serverInfo.Settings.Limit}</div>
           </th>
-          <td>
+          <td class="text-nowrap">
             {#if serverInfo.Dataleaks.length !== 0}
               <div class="inline-grid *:[grid-area:1/1] mr-2">
                 <div class="status status-success"></div>
@@ -46,7 +46,7 @@
               <div class="badge badge-xs badge-neutral">Deep Mode</div>
             {/if}
           </th>
-          <td>
+          <td class="text-nowrap">
             {#if serverInfo.Settings.GithubRecon === true}
               <div class="inline-grid *:[grid-area:1/1] mr-2">
                 <div class="status status-success"></div>
@@ -64,7 +64,7 @@
         </tr>
         <tr class="hover:bg-base-300">
           <th>Gravatar recon</th>
-          <td>
+          <td class="text-nowrap">
             {#if serverInfo.Settings.GravatarRecon === true}
               <div class="inline-grid *:[grid-area:1/1] mr-2">
                 <div class="status status-success"></div>
