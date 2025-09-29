@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FaviconOrIcon from "$src/lib/components/favicon-or-icon.svelte";
   import Table from "$src/lib/components/table.svelte";
   import { ChevronDown, ChevronUp, Database, Key, Mail } from "@lucide/svelte";
 
@@ -54,35 +55,16 @@
   }}
 >
   <div>
-    {#if getDomain(row["source"])}
-      <img
-        src="https://icons.duckduckgo.com/ip3/{getDomain(row['source'])}.ico"
-        class="size-10 rounded-box bg-neutral"
-        alt="Favicon de {getDomain(row['source'])}"
-      />
-    {:else if row["password"] !== null}
-      <div
-        class="size-10 rounded-box bg-neutral items-center justify-center flex"
-      >
-        <Key class="text-neutral-content" />
-      </div>
-    {:else if row["email"] !== null}
-      <div
-        class="size-10 rounded-box bg-neutral items-center justify-center flex"
-      >
-        <Mail class="text-neutral-content" />
-      </div>
-    {:else}
-      <div
-        class="size-10 rounded-box bg-neutral items-center justify-center flex"
-      >
-        <Database class="text-neutral-content" />
-      </div>
-    {/if}
+    <FaviconOrIcon
+      url={row["source"] !== null ? getDomain(row["source"]) : ""}
+      icon={row["password"] !== null
+        ? "password"
+        : row["email"] !== null
+          ? "email"
+          : ""}
+    />
   </div>
-  <div
-    class="flex-1 flex flex-col min-w-0 items-start justify-center"
-  >
+  <div class="flex-1 flex flex-col min-w-0 items-start justify-center">
     <div class="w-full overflow-hidden whitespace-nowrap text-ellipsis">
       {getHighlightedContent(row)}
     </div>

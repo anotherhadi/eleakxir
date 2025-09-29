@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Dataleak } from "$src/lib/types";
   import { Database, Replace, Search } from "@lucide/svelte";
+  import FaviconOrIcon from "../../favicon-or-icon.svelte";
 
   let {
     dataleaks,
@@ -89,23 +90,14 @@
           {#each paginatedDataleaks as item}
             <tr class="hover:bg-base-300">
               <th>
-                <div class="size-8">
-                  {#if getDomain(item.Name)}
-                    <img
-                      src="https://icons.duckduckgo.com/ip3/{getDomain(
-                        item.Name,
-                      )}.ico"
-                      class="size-8 rounded-xl bg-neutral"
-                      alt="Favicon de {getDomain(item.Name)}"
-                    />
-                  {:else}
-                    <div
-                      class="size-8 rounded-xl bg-neutral items-center justify-center flex"
-                    >
-                      <Database class="text-neutral-content" />
-                    </div>
-                  {/if}
-                </div>
+                <FaviconOrIcon
+                  url={getDomain(item.Name)}
+                  icon={item.Columns.includes("password")
+                    ? "password"
+                    : item.Columns.includes("email")
+                      ? "email"
+                      : ""}
+                />
               </th>
               <th>
                 {item.Name}
