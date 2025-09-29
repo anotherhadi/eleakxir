@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Dataleak } from "$src/lib/types";
-  import { Database, Replace, Search } from "@lucide/svelte";
+  import { Search } from "@lucide/svelte";
   import FaviconOrIcon from "../../favicon-or-icon.svelte";
 
   let {
@@ -15,33 +15,41 @@
 
   let page = $state(1);
   let filter = $state("");
-  let filteredDataleaks = $state<Dataleak[]>(dataleaks);
+  let filteredDataleaks = $state<Dataleak[]>([]);
   let paginatedDataleaks = $state<Dataleak[]>([]);
   let totalPages = $state(0);
 
-  $effect(() => {
-    if (filter.trim() === "") {
-      filteredDataleaks = dataleaks;
-    } else {
-      const lowerFilter = filter.toLowerCase();
-      filteredDataleaks = dataleaks.filter((item) =>
-        item.Name.toLowerCase().includes(lowerFilter),
-      );
-    }
-    page = 1;
-  });
+  function sortByModTime(arr: Dataleak[]): Dataleak[] {
+    return arr.slice().sort((a, b) => {
+      return new Date(b.ModTime).getTime() - new Date(a.ModTime).getTime();
+    });
+  }
 
-  $effect(() => {
-    if (filteredDataleaks) {
-      totalPages = Math.ceil(filteredDataleaks.length / perPage);
-      const start = (page - 1) * perPage;
-      const end = start + perPage;
-      paginatedDataleaks = filteredDataleaks.slice(start, end);
-      if (page > totalPages) {
-        page = totalPages > 0 ? totalPages : 1;
-      }
-    }
-  });
+  $effect(() => {
+    const sortedData = sortByModTime(dataleaks);
+
+    if (filter.trim() === "") {
+      filteredDataleaks = sortedData;
+    } else {
+      const lowerFilter = filter.toLowerCase();
+      filteredDataleaks = sortedData.filter((item) =>
+        item.Name.toLowerCase().includes(lowerFilter),
+      );
+    }
+    page = 1;
+  });
+
+  $effect(() => {
+    if (filteredDataleaks) {
+      totalPages = Math.ceil(filteredDataleaks.length / perPage);
+      const start = (page - 1) * perPage;
+      const end = start + perPage;
+      paginatedDataleaks = filteredDataleaks.slice(start, end);
+      if (page > totalPages) {
+        page = totalPages > 0 ? totalPages : 1;
+      }
+    }
+  });
 
   function getDomain(dataleakName: string) {
     const firstPart = dataleakName.split(" ")[0].toLowerCase();

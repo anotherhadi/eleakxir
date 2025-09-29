@@ -81,4 +81,5 @@ export type Dataleak = {
   Columns: string[];
   Length: number;
   Size: number;
+  ModTime: string;
 };
