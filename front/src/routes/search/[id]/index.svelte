@@ -174,7 +174,7 @@
                 <span>No result</span>
               </div>
             {:else}
-              <p class="text-base-content/60">
+              <p class="text-base-content/60 mb-2">
                 {result.LeakResult.Rows.length} results in {convertNanoSeconds(
                   result.LeakResult.Duration,
                 )}
