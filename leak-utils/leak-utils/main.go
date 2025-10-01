@@ -133,6 +133,7 @@ func main() {
 		var outputFile *string = flag.StringP("output", "o", "", "Output Parquet file")
 		var compression *string = flag.StringP("compression", "c", "ZSTD", "Compression codec (UNCOMPRESSED, SNAPPY, GZIP, BROTLI, LZ4, ZSTD)")
 		var noColors *bool = flag.Bool("no-colors", false, "Remove all colors")
+		var deleteTempFile *bool = flag.Bool("delete-temp-file", true, "Delete the temporary file")
 		var debug *bool = flag.Bool("debug", false, "Debug mode")
 		flag.Parse()
 		if *inputFile == "" || *outputFile == "" {
@@ -143,7 +144,7 @@ func main() {
 		}
 		lu.Compression = *compression
 		lu.Debug = *debug
-		err := misc.JsonToParquet(lu, *inputFile, *outputFile)
+		err := misc.JsonToParquet(lu, *inputFile, *outputFile, *deleteTempFile)
 		if err != nil {
 			log.Fatal("Failed to transform JSON file", "error", err)
 		}

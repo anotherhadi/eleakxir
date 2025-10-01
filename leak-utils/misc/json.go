@@ -110,10 +110,12 @@ func flattenJSONFile(inputFile string, outputFile string) error {
 	return nil
 }
 
-func JsonToParquet(lu settings.LeakUtils, inputFile string, outputFile string) error {
+func JsonToParquet(lu settings.LeakUtils, inputFile string, outputFile string, deleteTempFile bool) error {
 	tmpFile := filepath.Join("/tmp", "leak-utils.flat.json")
 	err := flattenJSONFile(inputFile, tmpFile)
-	defer os.Remove(tmpFile)
+	if deleteTempFile {
+		defer os.Remove(tmpFile)
+	}
 
 	query := fmt.Sprintf(`COPY (FROM read_json('%s', union_by_name=true, ignore_errors=true)) TO '%s' (FORMAT 'parquet', COMPRESSION '%s', ROW_GROUP_SIZE 200000);`, tmpFile, outputFile, lu.Compression)
 
