@@ -111,7 +111,11 @@ func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 	wg.Wait()
 
 	mu.Lock()
-	r.Status = "completed"
+	if r.LeakResult.Error != "" {
+		r.Status = "error"
+	} else {
+		r.Status = "completed"
+	}
 	mu.Unlock()
 }
 
