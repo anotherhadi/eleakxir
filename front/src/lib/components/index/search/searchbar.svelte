@@ -142,7 +142,14 @@
         class="grow input-xl"
         type="text"
         bind:value={query}
-        placeholder="Search..."
+        placeholder={
+        (
+        activeFilter === "all"
+          ? "Search..."
+          : `Search in ${activeFilter.replace("_", " ")}...`
+        )+
+        (activeFilter === "phone" && " (e.g. 612233445)" || "")
+        }
         required
       />
 
