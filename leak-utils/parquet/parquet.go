@@ -182,7 +182,6 @@ func configureColumns(input Parquet, skipLineFormating bool) []ColumnOperation {
 	if !skipLineFormating {
 		operations = formatColumns(operations)
 	}
-	operations = addFullname(operations)
 
 	return operations
 }

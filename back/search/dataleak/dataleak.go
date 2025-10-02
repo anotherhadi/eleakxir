@@ -118,11 +118,6 @@ func removeDuplicateMaps(maps []map[string]string) []map[string]string {
 }
 
 func buildSqlQuery(s *server.Server, queryText, column string, exactMatch bool) string {
-	// Normalize "name" -> "full_name"
-	if strings.EqualFold(column, "name") {
-		column = "full_name"
-	}
-
 	// Step 1: Determine candidate columns to search
 	var candidateColumns []string
 	if column == "all" || column == "" {

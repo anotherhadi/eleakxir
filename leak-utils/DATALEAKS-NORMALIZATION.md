@@ -100,7 +100,7 @@ combo_french-notes_crypto.parquet
   | age           |
   | first_name    |
   | last_name     |
-  | full_name     |
+  | middle_name   |
   | address       |
   | city          |
   | country       |
@@ -116,17 +116,12 @@ combo_french-notes_crypto.parquet
 
 - **Phone**: keep only `[^0-9]`
 
-- **Names**:
-  - Keep `first_name` / `last_name` if present.
-  - Generate `full_name = CONCAT(first_name, ' ', last_name)`.
-  - If only `name` exists, rename it to `full_name`.
-
 - **Passwords**:
   - Hashes → `password_hash`.
   - Plaintext → `password`.
   - Never mix hashes and plaintext in the same column.
 
-- **NULLs**: always use SQL `NULL` (never `""` or `"NULL"`).
+- **NULLs**: always use SQL `NULL` (never `""` or `"NULL"`, ...).
 
 ## Deduplication
 
