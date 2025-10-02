@@ -51,29 +51,13 @@ func routes(s *server.Server, cache *map[string]*search.Result, searchQueue chan
 	})
 
 	s.Router.GET("/history", func(c *gin.Context) {
-		type historyItem struct {
-			Id      string
-			Status  string
-			Date    time.Time
-			Query   search.Query
-			Results int
-		}
-		var history []historyItem
+		var history []search.Result
 		s.Mu.RLock()
 		for _, r := range *cache {
-			resultsCount := 0
-			if r.LeakResult.Rows != nil {
-				resultsCount = len(r.LeakResult.Rows)
-			}
-			history = append(history, historyItem{
-				Id:      r.Id,
-				Status:  r.Status,
-				Date:    r.Date,
-				Query:   r.Query,
-				Results: resultsCount,
-			})
+			history = append(history, *r)
 		}
 		s.Mu.RUnlock()
+		// Sort by date (newest first)
 		for i := 0; i < len(history)-1; i++ {
 			for j := 0; j < len(history)-i-1; j++ {
 				if history[j].Date.Before(history[j+1].Date) {

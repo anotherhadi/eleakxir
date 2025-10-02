@@ -4,18 +4,6 @@
   import { BadgeInfo, Clock, File } from "@lucide/svelte";
 
   const { result }: { result: Result } = $props();
-
-  let nresult = $state(0);
-  $effect(() => {
-    const r = [
-      result.LeakResult.Rows?.length | 0,
-      result.GithubResult.EmailResult?.Commits?.length | 0,
-      result.GithubResult.EmailResult?.Spoofing ? 1 : 0,
-      result.GithubResult.UsernameResult?.Commits?.length | 0,
-      result.GravatarResult.Results?.length | 0,
-    ];
-    nresult = r.reduce((a, b) => a + b, 0);
-  });
 </script>
 
 <div class="stats stats-vertical md:stats-horizontal">
@@ -25,7 +13,7 @@
     </div>
     <div class="stat-title">Results</div>
     <div class="stat-value" class:animate-pulse={result.Status === "pending"}>
-      {nresult.toLocaleString("fr")}
+      {result.ResultsCount.toLocaleString("fr")}
       {#if result.Status === "pending"}
         <span class="loading loading-dots loading-xs ml-2"></span>
       {/if}
@@ -49,9 +37,9 @@
       {#if result.Status === "pending"}
         Pending
         <span class="loading loading-dots loading-xs ml-2"></span>
-      {:else if result.Status === "completed" && nresult === 0}
+      {:else if result.Status === "completed" && result.ResultsCount === 0}
         No results
-      {:else if result.Status === "completed" && nresult > 0}
+      {:else if result.Status === "completed"}
         Completed
       {:else}
         {result.Status}

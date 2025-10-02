@@ -36,23 +36,17 @@ export type GravatarResult = {
 
 export type Result = {
   Id: string;
-  Status: "queued" | "pending" | "completed";
+  Status: "queued" | "pending" | "completed" | "error";
   Date: string;
   Query: Query;
+  ResultsCount: number;
+
   LeakResult: LeakResult;
   GithubResult: GithubResult;
   GravatarResult: GravatarResult;
 };
 
-export type HistoryItem = {
-  Id: string;
-  Status: "queued" | "pending" | "completed";
-  Date: string;
-  Query: Query;
-  Results: number;
-};
-
-export type History = HistoryItem[];
+export type History = Result[];
 
 export type ServerSettings = {
   Folders: string[];

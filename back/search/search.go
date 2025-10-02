@@ -25,10 +25,11 @@ type Query struct {
 }
 
 type Result struct {
-	Id     string
-	Date   time.Time
-	Status string // "queued", "pending", "completed"
-	Query  Query
+	Id           string
+	Date         time.Time
+	Status       string // "queued", "pending", "completed", "error"
+	Query        Query
+	ResultsCount int // Total number of results found across all services
 
 	LeakResult     dataleak.LeakResult
 	GithubResult   osint.GithubResult
@@ -40,6 +41,7 @@ func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 
 	mu.Lock()
 	r.Status = "pending"
+	r.ResultsCount = 0
 	mu.Unlock()
 
 	wg.Add(3)
@@ -54,6 +56,7 @@ func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 		leakResult := dataleak.Search(s, q.Text, q.Column, q.ExactMatch)
 		mu.Lock()
 		r.LeakResult = leakResult
+		r.ResultsCount += len(leakResult.Rows)
 		mu.Unlock()
 		wg.Done()
 	}()
@@ -89,6 +92,15 @@ func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 		}
 		mu.Lock()
 		r.GithubResult = githubResult
+		if githubResult.EmailResult != nil && githubResult.EmailResult.Commits != nil {
+			r.ResultsCount += len(githubResult.EmailResult.Commits)
+		}
+		if githubResult.EmailResult != nil && githubResult.EmailResult.Spoofing != nil && githubResult.EmailResult.Spoofing.Username != "" {
+			r.ResultsCount += 1
+		}
+		if githubResult.UsernameResult != nil && githubResult.UsernameResult.Commits != nil {
+			r.ResultsCount += len(githubResult.UsernameResult.Commits)
+		}
 		mu.Unlock()
 		wg.Done()
 	}()
@@ -104,6 +116,9 @@ func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 		gravatarResult := osint.GravatarSearch(s, cleanQueryText)
 		mu.Lock()
 		r.GravatarResult = gravatarResult
+		if gravatarResult.Results != nil {
+			r.ResultsCount += len(gravatarResult.Results)
+		}
 		mu.Unlock()
 		wg.Done()
 	}()

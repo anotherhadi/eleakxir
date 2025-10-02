@@ -82,13 +82,14 @@
                   {item.Query.Text}
                 </button>
               </th>
-              <td>{item.Results}</td>
+              <td>{item.ResultsCount}</td>
               <td
                 ><div
                   class="badge badge-xs"
                   class:badge-success={item.Status === "completed"}
                   class:badge-warning={item.Status === "pending"}
                   class:badge-neutral={item.Status === "queued"}
+                  class:badge-error={item.Status === "error"}
                 >
                   {item.Status}
                 </div></td
