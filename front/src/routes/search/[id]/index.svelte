@@ -111,6 +111,7 @@
         initialExactMatch={result.Query.ExactMatch}
         initialDatawells={result.Query.Datawells}
         initialGithubRecon={result.Query.GithubRecon}
+        initialGravatarRecon={result.Query.GravatarRecon}
       />
     </header>
 
