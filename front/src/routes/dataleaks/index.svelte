@@ -1,6 +1,6 @@
 <script lang="ts">
   import Datawells from "$src/lib/components/index/search/datawells.svelte";
-    import Stats from "$src/lib/components/index/search/stats.svelte";
+  import Stats from "$src/lib/components/index/search/stats.svelte";
 
   import { serverPassword, serverUrl } from "$src/lib/stores/server";
   import type { Server } from "$src/lib/types";
