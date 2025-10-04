@@ -11,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var cancelled = make(map[string]struct{})
+
 func searchWorker(s *server.Server, cache *map[string]*search.Result, searchQueue chan string, limiter chan struct{}) {
 	for id := range searchQueue {
 		s.Mu.RLock()
@@ -18,6 +20,16 @@ func searchWorker(s *server.Server, cache *map[string]*search.Result, searchQueu
 		s.Mu.RUnlock()
 
 		if !exists {
+			continue
+		}
+
+		s.Mu.RLock()
+		_, isCancelled := cancelled[id]
+		s.Mu.RUnlock()
+		if isCancelled {
+			s.Mu.Lock()
+			r.Status = "cancelled"
+			s.Mu.Unlock()
 			continue
 		}
 
@@ -130,30 +142,14 @@ func routes(s *server.Server, cache *map[string]*search.Result, searchQueue chan
 			return
 		}
 
+		s.Mu.Lock()
+		cancelled[id] = struct{}{}
 		if r.Status == "queued" {
-			newQueue := make(chan string, cap(searchQueue))
-			for {
-				select {
-				case queuedId := <-searchQueue:
-					if queuedId != id {
-						newQueue <- queuedId
-					}
-				default:
-					goto Done
-				}
-			}
-		Done:
-			searchQueue = newQueue
-
-			s.Mu.Lock()
 			r.Status = "cancelled"
-			s.Mu.Unlock()
-
-			c.JSON(http.StatusOK, gin.H{"Status": "Cancelled"})
-			return
 		}
+		s.Mu.Unlock()
 
-		c.JSON(http.StatusBadRequest, gin.H{"Error": "Cannot cancel running or finished search"})
+		c.JSON(http.StatusOK, gin.H{"Status": "Cancelled"})
 	})
 
 	s.Router.GET("/dataleak/sample", func(c *gin.Context) {
