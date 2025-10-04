@@ -27,7 +27,7 @@ type Query struct {
 type Result struct {
 	Id           string
 	Date         time.Time
-	Status       string // "queued", "pending", "completed", "error"
+	Status       string // "queued", "pending", "completed", "error", "cancelled"
 	Query        Query
 	ResultsCount int // Total number of results found across all services
 
@@ -43,6 +43,8 @@ func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 	r.Status = "pending"
 	r.ResultsCount = 0
 	mu.Unlock()
+
+	time.Sleep(20 * time.Second) // To ensure the status update is sent to the client before starting the search
 
 	wg.Add(3)
 	go func() {

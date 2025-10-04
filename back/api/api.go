@@ -118,6 +118,44 @@ func routes(s *server.Server, cache *map[string]*search.Result, searchQueue chan
 		c.JSON(http.StatusOK, r)
 	})
 
+	s.Router.POST("/search/cancel/:id", func(c *gin.Context) {
+		id := c.Param("id")
+
+		s.Mu.Lock()
+		r, exists := (*cache)[id]
+		s.Mu.Unlock()
+
+		if !exists {
+			c.JSON(http.StatusNotFound, gin.H{"Error": "Search not found"})
+			return
+		}
+
+		if r.Status == "queued" {
+			newQueue := make(chan string, cap(searchQueue))
+			for {
+				select {
+				case queuedId := <-searchQueue:
+					if queuedId != id {
+						newQueue <- queuedId
+					}
+				default:
+					goto Done
+				}
+			}
+		Done:
+			searchQueue = newQueue
+
+			s.Mu.Lock()
+			r.Status = "cancelled"
+			s.Mu.Unlock()
+
+			c.JSON(http.StatusOK, gin.H{"Status": "Cancelled"})
+			return
+		}
+
+		c.JSON(http.StatusBadRequest, gin.H{"Error": "Cannot cancel running or finished search"})
+	})
+
 	s.Router.GET("/dataleak/sample", func(c *gin.Context) {
 		path := c.Query("path")
 		if path == "" {

@@ -36,7 +36,7 @@ export type GravatarResult = {
 
 export type Result = {
   Id: string;
-  Status: "queued" | "pending" | "completed" | "error";
+  Status: "queued" | "pending" | "completed" | "error" | "cancelled";
   Date: string;
   Query: Query;
   ResultsCount: number;

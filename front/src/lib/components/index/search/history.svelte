@@ -1,8 +1,11 @@
 <script lang="ts">
+  import { serverUrl, serverPassword } from "$src/lib/stores/server";
   import type { History } from "$src/lib/types";
-    import { formatDate } from "$src/lib/utils";
+  import { formatDate } from "$src/lib/utils";
   import { Search } from "@lucide/svelte";
-  import { navigate, p } from "sv-router/generated";
+  import axios from "axios";
+  import { navigate } from "sv-router/generated";
+  import { toast } from "svelte-sonner";
 
   let { history, perPage = 5 }: { history: History; perPage?: number } =
     $props();
@@ -48,6 +51,26 @@
       page++;
     }
   }
+
+  function cancel(id: string) {
+    axios
+      .post(
+        `${$serverUrl}/search/cancel/${id}`,
+        {},
+        { headers: { "X-Password": $serverPassword } },
+      )
+      .then(() => {
+        toast.success("Search cancelled");
+        history = history.map((item) =>
+          item.Id === id ? { ...item, Status: "cancelled" } : item,
+        );
+        filter = filter;
+      })
+      .catch((e) => {
+        toast.error("Failed to cancel search");
+        console.log("Failed to cancel search", e);
+      });
+  }
 </script>
 
 <div class="my-4 flex flex-col gap-2">
@@ -88,12 +111,20 @@
                   class="badge badge-xs"
                   class:badge-success={item.Status === "completed"}
                   class:badge-warning={item.Status === "pending"}
-                  class:badge-neutral={item.Status === "queued"}
+                  class:badge-neutral={item.Status === "queued" ||
+                    item.Status === "cancelled"}
                   class:badge-error={item.Status === "error"}
                 >
                   {item.Status}
-                </div></td
-              >
+                </div>
+
+                {#if item.Status === "queued"}
+                  <button
+                    class="btn btn-xs size-4 btn-square btn-soft"
+                    onclick={() => cancel(item.Id)}>x</button
+                  >
+                {/if}
+              </td>
               <td>{formatDate(item.Date)}</td>
               <td
                 onclick={() => {
