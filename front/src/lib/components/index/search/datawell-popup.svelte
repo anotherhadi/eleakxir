@@ -34,11 +34,10 @@
       return;
     }
 
-    const leakName = dataleak.Name;
-    const columns = samples[0].join(", ");
-    const sampleRows = samples.slice(1).map(r => r.join(", ")).join("\n");
+    const columns = samples[0].join(",");
+    const sampleRows = samples.slice(1).map(r => r.join(",")).join("\n");
 
-    const textToCopy = `Leak Name: ${leakName}\nColumns: ${columns}\nSample:\n${sampleRows}`;
+    const textToCopy = `Leak Name: ${dataleak.Name}\nLength: ${dataleak.Length}\nColumns: ${columns}\nSample:\n${sampleRows}`;
 
     try {
       await navigator.clipboard.writeText(textToCopy);
@@ -56,6 +55,7 @@
   class="text-nowrap flex gap-2 items-center hover:text-base-content/70"
   onclick={() => {
     popupOpen = true;
+    samples = [];
     getSample();
   }}
 >

@@ -108,7 +108,7 @@
                       : ""}
                 />
               </th>
-              <th class="">
+              <th>
                 <DatawellPopup dataleak={item}/>
               </th>
               <td>{item.Length.toLocaleString("fr")}</td>
