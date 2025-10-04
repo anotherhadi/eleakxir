@@ -217,11 +217,20 @@ func getFromClause(s *server.Server) string {
 	}
 	return fmt.Sprintf("read_parquet([%s], union_by_name=true, filename=true)", strings.Join(parquets, ", "))
 }
-
 func GetDataleakSample(s server.Server, path string) ([][]string, error) {
 	rowsData := [][]string{}
 
-	query := fmt.Sprintf("SELECT * FROM read_parquet('%s') LIMIT 5", path)
+	// Use row_number() to get first 3 and last 3 rows
+	query := fmt.Sprintf(`
+	WITH numbered AS (
+		SELECT *, row_number() OVER () AS rn, count(*) OVER () AS total_rows
+		FROM read_parquet('%s')
+	)
+	SELECT * EXCLUDE (rn, total_rows)
+	FROM numbered
+	WHERE rn <= 3 OR rn > total_rows - 3
+	`, path)
+
 	rows, err := s.Duckdb.Query(query)
 	if err != nil {
 		return rowsData, err
@@ -233,7 +242,7 @@ func GetDataleakSample(s server.Server, path string) ([][]string, error) {
 		return rowsData, err
 	}
 
-	rowsData = append(rowsData, cols)
+	rowsData = append(rowsData, cols) // header
 
 	rawResult := make([][]byte, len(cols))
 	dest := make([]any, len(cols))
