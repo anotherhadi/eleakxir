@@ -217,3 +217,49 @@ func getFromClause(s *server.Server) string {
 	}
 	return fmt.Sprintf("read_parquet([%s], union_by_name=true, filename=true)", strings.Join(parquets, ", "))
 }
+
+func GetDataleakSample(s server.Server, path string) ([][]string, error) {
+	rowsData := [][]string{}
+
+	query := fmt.Sprintf("SELECT * FROM read_parquet('%s') LIMIT 5", path)
+	rows, err := s.Duckdb.Query(query)
+	if err != nil {
+		return rowsData, err
+	}
+	defer rows.Close()
+
+	cols, err := rows.Columns()
+	if err != nil {
+		return rowsData, err
+	}
+
+	rowsData = append(rowsData, cols)
+
+	rawResult := make([][]byte, len(cols))
+	dest := make([]any, len(cols))
+	for i := range rawResult {
+		dest[i] = &rawResult[i]
+	}
+
+	for rows.Next() {
+		if err := rows.Scan(dest...); err != nil {
+			return rowsData, err
+		}
+
+		row := make([]string, len(cols))
+		for i := range cols {
+			if rawResult[i] == nil {
+				row[i] = ""
+			} else {
+				row[i] = string(rawResult[i])
+			}
+		}
+		rowsData = append(rowsData, row)
+	}
+
+	if err = rows.Err(); err != nil {
+		return rowsData, err
+	}
+
+	return rowsData, nil
+}

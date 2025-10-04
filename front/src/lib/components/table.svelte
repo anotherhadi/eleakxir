@@ -3,12 +3,12 @@
 
   const {
     row,
-  }: { row: Record<string, string> | Array<Record<string, string>> } = $props();
+  }: { row: Record<string, string> | Array<Record<string, string>>| string[][] } = $props();
 </script>
 
 <div class="overflow-x-auto">
   <table class="table">
-    {#if Array.isArray(row) && row.length !== 0}
+    {#if Array.isArray(row) && row.length > 0 && row[0]}
       {@const head = Object.entries(row[0])}
       <!-- head -->
       <thead>
@@ -27,7 +27,9 @@
           <tr>
             {#each Object.entries(item) as [key, value]}
               <th class="text-xs whitespace-nowrap font-semibold opacity-60">
-                {#if ( key.toLowerCase() == "url" || key.toLowerCase().endsWith("_url")) && value !== null && value !== ""}
+                {#if (key.toLowerCase() == "url" || key
+                    .toLowerCase()
+                    .endsWith("_url")) && value !== null && value !== ""}
                   <a
                     href={value}
                     target="_blank"
@@ -45,7 +47,7 @@
           </tr>
         {/each}
       </tbody>
-    {:else}
+    {:else if row && Object.keys(row).length > 0}
       <tbody>
         {#each Object.entries(row) as [key, value]}
           {#if key !== "source" && value !== null && value !== ""}
@@ -56,7 +58,9 @@
               >
 
               <td class="w-fit overflow-x-auto whitespace-nowrap">
-                {#if key.toLowerCase() == "url" || key.toLowerCase().endsWith("_url")}
+                {#if key.toLowerCase() == "url" || key
+                    .toLowerCase()
+                    .endsWith("_url")}
                   <a
                     href={value}
                     target="_blank"

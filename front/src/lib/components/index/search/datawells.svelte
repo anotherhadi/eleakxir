@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { Dataleak } from "$src/lib/types";
-  import { Search } from "@lucide/svelte";
+  import { Info, Search } from "@lucide/svelte";
   import FaviconOrIcon from "../../favicon-or-icon.svelte";
+    import DatawellPopup from "./datawell-popup.svelte";
 
   let {
     dataleaks,
@@ -107,8 +108,8 @@
                       : ""}
                 />
               </th>
-              <th class="text-nowrap">
-                {item.Name}
+              <th class="">
+                <DatawellPopup dataleak={item}/>
               </th>
               <td>{item.Length.toLocaleString("fr")}</td>
               {#if showColumns}

@@ -76,4 +76,5 @@ export type Dataleak = {
   Length: number;
   Size: number;
   ModTime: string;
+  Path: string;
 };

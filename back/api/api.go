@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/anotherhadi/eleakxir/backend/search"
+	"github.com/anotherhadi/eleakxir/backend/search/dataleak"
 	"github.com/anotherhadi/eleakxir/backend/server"
 	"github.com/gin-gonic/gin"
 )
@@ -115,6 +116,20 @@ func routes(s *server.Server, cache *map[string]*search.Result, searchQueue chan
 			return
 		}
 		c.JSON(http.StatusOK, r)
+	})
+
+	s.Router.GET("/dataleak/sample", func(c *gin.Context) {
+		path := c.Query("path")
+		if path == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"Error": "path is required"})
+			return
+		}
+		sample, err := dataleak.GetDataleakSample(*s, path)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"Sample": sample})
 	})
 }
 
