@@ -44,8 +44,6 @@ func Search(s *server.Server, q Query, r *Result, mu *sync.RWMutex) {
 	r.ResultsCount = 0
 	mu.Unlock()
 
-	time.Sleep(20 * time.Second) // To ensure the status update is sent to the client before starting the search
-
 	wg.Add(3)
 	go func() {
 		if !q.Datawells {
