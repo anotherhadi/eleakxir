@@ -13,6 +13,7 @@ func formatColumnName(columnName string) string {
 	columnName = strings.ReplaceAll(columnName, "'", "")
 	columnName = strings.ReplaceAll(columnName, " ", "_")
 	columnName = strings.ReplaceAll(columnName, "-", "_")
+	columnName = strings.ReplaceAll(columnName, ".", "_")
 	// Only keep a-z, 0-9 and _
 	var formatted strings.Builder
 	for _, r := range columnName {
