@@ -24,7 +24,7 @@
 
   let copyText = $state("Copy to clipboard");
 
-  async function copyDataleaksInformation(withSample: boolean) {
+  async function copyDataleaksInformation(withColumns: boolean, withSample: boolean) {
     if (!filteredDataleaks || filteredDataleaks.length === 0) {
       copyText = "No dataleaks to copy";
       return;
@@ -60,6 +60,8 @@
             console.error("Failed to fetch sample for", dataleak.Name, err);
             fullText += "Sample: [Failed to fetch]\n";
           });
+      } else if (withColumns) {
+        fullText += `Columns: ${dataleak.Columns.join(", ")}\n`;
       }
       fullText += "\n";
     }
@@ -150,12 +152,17 @@
       >
         <button
           class="btn btn-xs"
-          onclick={() => copyDataleaksInformation(false)}>{copyText}</button
+          onclick={() => copyDataleaksInformation(false, false)}>{copyText}</button
         >
         <button
           class="btn btn-xs"
-          onclick={() => copyDataleaksInformation(true)}
-          >{copyText} (w/ sample)</button
+          onclick={() => copyDataleaksInformation(true, false)}
+          >{copyText} (w/ columns)</button
+        >
+        <button
+          class="btn btn-xs"
+          onclick={() => copyDataleaksInformation(false, true)}
+          >{copyText} (w/ samples)</button
         >
       </div>
     </div>
