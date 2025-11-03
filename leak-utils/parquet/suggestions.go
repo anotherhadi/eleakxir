@@ -86,6 +86,7 @@ var (
 		"numeromobile":    "phone",
 		"mobilephone":     "phone",
 		"mobile":          "phone",
+		"website":         "url",
 	}
 )
 
