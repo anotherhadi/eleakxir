@@ -62,6 +62,7 @@ var (
 		"email":           "email",
 		"zip":             "postal_code",
 		"postalcode":      "postal_code",
+		"postcode":        "postal_code",
 		"zipcode":         "postal_code",
 		"postal":          "postal_code",
 		"codepostal":      "postal_code",
