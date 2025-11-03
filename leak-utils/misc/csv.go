@@ -100,6 +100,9 @@ func csvHasHeader(inputFile, delimiter string) (hasHeader bool, err error) {
 		if slices.Contains(firstRow, knownHeader) {
 			return true, nil
 		}
+		if slices.Contains(firstRow, "_"+knownHeader) {
+			return true, nil
+		}
 	}
 	return false, nil
 }
