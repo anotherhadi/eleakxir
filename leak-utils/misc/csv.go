@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"slices"
 	"strings"
 
 	"github.com/anotherhadi/eleakxir/leak-utils/settings"
@@ -97,11 +96,10 @@ func csvHasHeader(inputFile, delimiter string) (hasHeader bool, err error) {
 	}
 	knownHeaders := []string{"email", "password", "username", "phone", "lastname", "firstname", "mail", "addresse", "nom", "id"}
 	for _, knownHeader := range knownHeaders {
-		if slices.Contains(firstRow, knownHeader) {
-			return true, nil
-		}
-		if slices.Contains(firstRow, "_"+knownHeader) {
-			return true, nil
+		for _, col := range firstRow {
+			if strings.HasPrefix(col, "_"+knownHeader) || col == knownHeader {
+				return true, nil
+			}
 		}
 	}
 	return false, nil
